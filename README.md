@@ -3,7 +3,7 @@
 
 ## **Team Members**
 
-Lauren Kibalo, Harris Pyo, Daniel Zamloot, Dean Zazzera
+Lauren Kibalo, Harris Pyo, Jason Vera, Daniel Zamloot, Dean Zazzera
 
 
 ## **Introduction**
