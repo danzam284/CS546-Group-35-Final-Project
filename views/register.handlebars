@@ -1,0 +1,17 @@
+<p id="error">{{error}}</p>
+
+<form action="/register" id="registration-form" method="POST">
+    <label for="emailAddressInput">Email</label>
+    <input name="emailAddressInput" id="emailAddressInput" type="email">
+    <label for="usernameInput">Username</label>
+    <input name="usernameInput" id="usernameInput" type="text">
+    <label for="passwordInput">Password</label>
+    <input name="passwordInput" id="passwordInput" type="password">
+    <label for="confirmPasswordInput">Confirm Password</label>
+    <input name="confirmPasswordInput" id="confirmPasswordInput" type="password">
+    <input class="submit" type="submit">
+</form>
+
+<a href="/login">Already have an account? Click here to log-in</a>
+
+<script src="/public/js/client_side_validation.js"></script>
