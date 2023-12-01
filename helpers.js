@@ -67,10 +67,34 @@ function validateUsername(u) {
     }
 }
 
+const validPrefixes = ["AAI", "ACC", "BIA", "BIO", "BME", "BT", "CAL", "CE", "CH", "CHE", "CM", "CPE", "CS", "DS", "ECON", "EE", "ELC",
+"EM", "EN", "ENGR", "FA", "FE", "FIN", "HAR", "HMU", "HSS", "HST", "IDE", "ISE", "MA", "ME", "MGT", "MIS", "MT", "NANO", "NE", "NIS",
+"OE", "PEP"];
+
+//Course name must be in format of '{prefix} {number}'
+function validateCourseName(n) {
+    validateString(n);
+    const spl = n.split(" ");
+    if (spl.length !== 2) {
+        throw Error("Invalid course name format.");
+    }
+    if (!validPrefixes.includes(spl[0].trim().toUpperCase())) {
+        throw Error("Invalid course prefix.");
+    }
+    if (isNaN(spl[1].trim())) {
+        throw Error("Non-number detected for course number.");
+    }
+    const courseNumber = parseInt(spl[1].trim());
+    if (courseNumber < 100 || courseNumber > 900) {
+        throw Error("Course number must be between 100 and 900.");
+    }
+}
+
 export {
     validateString,
     validateEmail,
     validateName,
     validatePassword,
-    validateUsername
+    validateUsername,
+    validateCourseName
 };

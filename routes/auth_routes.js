@@ -2,7 +2,8 @@
 import {Router} from 'express';
 import * as helpers from '../helpers.js';
 import { registerUser, loginUser } from '../data/users.js';
-import { users } from '../config/mongoCollections.js';
+import { users, courses } from '../config/mongoCollections.js';
+import { addCourse } from '../data/course.js';
 
 const router = Router();
 
@@ -46,7 +47,7 @@ router
       if (register.insertedUser) {
         return res.redirect("/login");
       } else {
-        return res.status(500).json({error: "Internal Server Error"});
+        return res.status(500).render("../views/register", {error: "Internal Server Error", title: "register"});
       }
     } catch(e) {
       return res.status(400).render("../views/register", {error: e, title: "register"});
@@ -76,13 +77,42 @@ router.route('/main').get(async (req, res) => {
   res.render('../views/main', {title: "main", username: user.username, email: user.emailAddress});
 });
 
-router.route('/create').get(async (req, res) => {
-  res.render('../views/create');
-});
+router
+  .route('/create')
+  .get(async (req, res) => {
+    const courseCollection = await courses();
+    const allCourses = await courseCollection.find({}).toArray();
+    res.render('../views/create', {title: "create review", courses: allCourses});
+  })
+  .post(async (req, res) => {
+    //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
+  });
 
-router.route('/addCourse').get(async (req, res) => {
-  res.render('../views/addCourse');
-});
+router
+  .route('/addCourse')
+  .get(async (req, res) => {
+    res.render('../views/addCourse', {title: "add course"});
+  })
+  .post(async (req, res) => {
+    let courseName = req.body.courseNameInput;
+    try {
+      courseName = courseName.trim(); helpers.validateCourseName(courseName);
+    } catch(e) {
+      return res.status(400).render("../views/addCourse", {error: e, title: "add course"});
+    }
+
+    try {
+      const add = await addCourse(courseName);
+      if (add.insertedCourse) {
+        return res.redirect("/main");
+      } else {
+        return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "add course"});
+      }
+    } catch(e) {
+      return res.status(400).render("../views/addCourse", {error: e, title: "register"});
+    }
+  });
+
 
 router.route('/logout').get(async (req, res) => {
   req.session.destroy();
