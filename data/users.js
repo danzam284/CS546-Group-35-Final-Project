@@ -23,11 +23,11 @@ export const registerUser = async (
     throw Error("There is already a user with that username.");
   }
 
-  const hashedPassword = await bcrypt.hash(password, 16);
+  const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = {emailAddress, username, password: hashedPassword, admin: false, reviews: []};
   const insertInfo = await userCollection.insertOne(newUser);
   if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-    throw Error("Could not add event.");
+    throw Error("Could not add user.");
   }
 
   return {insertedUser: true};

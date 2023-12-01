@@ -1,5 +1,10 @@
 <form action="/create" id="create-form" method="POST">
-    <p>In This spot we should query for all courses/professors and add dropdowns accordingly</p>
+    <label for="courseInput">Course</label>
+    <select name="courseInput" id="courseInput">
+        {{#each courses}}
+        <option value="{{name}}">{{name}}</option>
+        {{/each}}
+    </select>
     <input class="submit" type="submit">
 </form>
 
