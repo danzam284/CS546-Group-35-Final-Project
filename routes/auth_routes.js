@@ -66,15 +66,15 @@ router
       emailAddress = emailAddress.trim(); helpers.validateEmail(emailAddress);
       password = password.trim(); helpers.validatePassword(password);
       req.session.user = await loginUser(emailAddress, password);
-      res.redirect("/main");
+      res.redirect("/home");
     } catch(e) {
       res.status(400).render("../views/login", {error: e, title: "login"});
     }
   });
 
-router.route('/main').get(async (req, res) => {
+router.route('/home').get(async (req, res) => {
   const user = req.session.user;
-  res.render('../views/main', {title: "main", username: user.username, email: user.emailAddress});
+  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress});
 });
 
 router
@@ -121,7 +121,7 @@ router
       }
       console.log("Review successfully added to user, course, and professor.")
 
-      return res.redirect("/main");
+      return res.redirect("/home");
     } catch(e) {
       console.log(e);
       return res.status(400).render("../views/create", {error: e, title: "create review"});
@@ -145,7 +145,7 @@ router
     try {
       const add = await addCourse(courseName);
       if (add.insertedCourse) {
-        return res.redirect("/main");
+        return res.redirect("/home");
       } else {
         return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "add course"});
       }
