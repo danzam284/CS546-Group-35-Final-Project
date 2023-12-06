@@ -2,8 +2,9 @@
 import {Router} from 'express';
 import * as helpers from '../helpers.js';
 import { registerUser, loginUser } from '../data/users.js';
-import { users, courses } from '../config/mongoCollections.js';
+import { users, courses, professors } from '../config/mongoCollections.js';
 import { addCourse } from '../data/course.js';
+import { addProfessor } from '../data/professor.js';
 
 const router = Router();
 
@@ -66,23 +67,25 @@ router
       emailAddress = emailAddress.trim(); helpers.validateEmail(emailAddress);
       password = password.trim(); helpers.validatePassword(password);
       req.session.user = await loginUser(emailAddress, password);
-      res.redirect("/main");
+      res.redirect("/home");
     } catch(e) {
       res.status(400).render("../views/login", {error: e, title: "login"});
     }
   });
 
-router.route('/main').get(async (req, res) => {
+router.route('/home').get(async (req, res) => {
   const user = req.session.user;
-  res.render('../views/main', {title: "main", username: user.username, email: user.emailAddress});
+  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress});
 });
 
 router
   .route('/create')
   .get(async (req, res) => {
     const courseCollection = await courses();
+    const professorCollection = await professors();
     const allCourses = await courseCollection.find({}).toArray();
-    res.render('../views/create', {title: "create review", courses: allCourses});
+    const allProfessors = await professorCollection.find({}).toArray();
+    res.render('../views/create', {title: "create review", courses: allCourses, professors: allProfessors});
   })
   .post(async (req, res) => {
     //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
@@ -121,9 +124,8 @@ router
       }
       console.log("Review successfully added to user, course, and professor.")
 
-      return res.redirect("/main");
+      return res.redirect("/home");
     } catch(e) {
-      console.log(e);
       return res.status(400).render("../views/create", {error: e, title: "create review"});
     }
     
@@ -145,12 +147,39 @@ router
     try {
       const add = await addCourse(courseName);
       if (add.insertedCourse) {
-        return res.redirect("/main");
+        return res.redirect("/home");
       } else {
         return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "add course"});
       }
     } catch(e) {
-      return res.status(400).render("../views/addCourse", {error: e, title: "register"});
+      return res.status(400).render("../views/addCourse", {error: e, title: "add course"});
+    }
+  });
+
+  router
+  .route('/addProfessor')
+  .get(async (req, res) => {
+    res.render('../views/addProfessor', {title: "add professor"});
+  })
+  .post(async (req, res) => {
+    let professorFirstName = req.body.professorFirstNameInput;
+    let professorLastName = req.body.professorLastNameInput;
+    try {
+      professorFirstName = professorFirstName.trim(); helpers.validateProfessorName(professorFirstName, "first");
+      professorLastName = professorLastName.trim(); helpers.validateProfessorName(professorLastName, "last");
+    } catch(e) {
+      return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
+    }
+
+    try {
+      const add = await addProfessor(professorFirstName, professorLastName);
+      if (add.insertedCourse) {
+        return res.redirect("/home");
+      } else {
+        return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "add professor"});
+      }
+    } catch(e) {
+      return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
     }
   });
 

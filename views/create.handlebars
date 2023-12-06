@@ -31,9 +31,13 @@
     <textarea name="reviewTextInput" id="reviewTextInput" cols="30" rows="10"></textarea>
     <br>
     <label for="professorNameInput">Professor</label>
-    <input name="professorNameInput" id="professorNameInput" type="text">
+    <select name="professorNameInput" id="professorNameInput">
+        {{#each professors}}
+        <option value="{{name}}">{{name}}</option>
+        {{/each}}
+    </select>
     <br>
     <input class="submit" type="submit">
 </form>
 
-<a href="/main">Back</a>
+<a href="/home">Back</a>

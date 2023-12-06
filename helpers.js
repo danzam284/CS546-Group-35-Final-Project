@@ -90,11 +90,30 @@ function validateCourseName(n) {
     }
 }
 
+function validateProfessorName(n, type) {
+    validateString(n);
+    if (n.length < 2) {
+        throw Error(type + " name is too short.");
+    }
+    if (n.length > 25) {
+        throw Error(type + " name is too long.");
+    }
+    for (let i = 0; i < n.length; i++) {
+        if (!(/[a-zA-Z]/).test(n[i]) && n[i] !== "'") {
+            throw Error(type + " name has an invalid character.");
+        }
+    }
+    if (n.split("'").length > 2) {
+        throw Error("Too many apostrophes in " + type + " name.")
+    }
+}
+
 export {
     validateString,
     validateEmail,
     validateName,
     validatePassword,
     validateUsername,
-    validateCourseName
+    validateCourseName,
+    validateProfessorName
 };
