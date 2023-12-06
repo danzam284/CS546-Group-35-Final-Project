@@ -86,6 +86,47 @@ router
   })
   .post(async (req, res) => {
     //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
+    const user = req.session.user;
+    const courseName = req.body.courseNameInput;
+    const professorName = req.body.professorNameInput;
+    const rating = req.body.ratingInput;
+    const difficulty = req.body.difficultyInput;
+    const reviewText = req.body.reviewTextInput;
+    try {
+      helpers.validateCourseName(courseName);
+      helpers.validateName(professorName);
+      if (rating < 1 || rating > 5) throw "Invalid rating";
+      if (difficulty < 1 || difficulty > 5) throw "Invalid difficulty";
+      const newReview = {
+        courseName: courseName,
+        professorName: professorName,
+        rating: rating,
+        difficulty: difficulty,
+        reviewText: reviewText
+      };
+      const userCollection = await users();
+      const updatedUser = await userCollection.updateOne({_id: user._id}, {$push: {reviews: newReview}});
+      if (updatedUser.modifiedCount === 0) {
+        throw Error("Internal Server Error");
+      }
+      const courseCollection = await courses();
+      const updatedCourse = await courseCollection.updateOne({courseName: courseName}, {$push: {reviews: newReview}});
+      if (updatedCourse.modifiedCount === 0) {
+        throw Error("Internal Server Error");
+      }
+      const professorCollection = await professors();
+      const updatedProfessor = await professorCollection.updateOne({professorName: professorName}, {$push: {reviews: newReview}});
+      if (updatedProfessor.modifiedCount === 0) {
+        throw Error("Internal Server Error");
+      }
+      console.log("Review successfully added to user, course, and professor.")
+
+      return res.redirect("/main");
+    } catch(e) {
+      console.log(e);
+      return res.status(400).render("../views/create", {error: e, title: "create review"});
+    }
+    
   });
 
 router
