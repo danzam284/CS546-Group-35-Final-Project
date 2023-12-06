@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node app.js"
   },
-  "author": "",
+  "author": "Lauren Kibalo, Harris Pyo, Jason Vera, Daniel Zamloot, Dean Zazzera",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
