@@ -1,10 +1,36 @@
 <form action="/create" id="create-form" method="POST">
-    <label for="courseInput">Course</label>
-    <select name="courseInput" id="courseInput">
+    <label for="courseNameInput">Course</label>
+    <select name="courseNameInput" id="courseNameInput">
         {{#each courses}}
         <option value="{{name}}">{{name}}</option>
         {{/each}}
     </select>
+    <br>
+    <label for="ratingInput">Rating</label>
+    <select name="ratingInput" id="ratingInput">
+        <option value="1">1 Star</option>
+        <option value="2">2 Stars</option>
+        <option value="3">3 Stars</option>
+        <option value="4">4 Stars</option>
+        <option value="5">5 Stars</option>
+    </select>
+    <br>
+    <label for="difficultyInput">Difficulty</label>
+    <select name="difficultyInput" id="difficultyInput">
+        <option value="1">1 Star</option>
+        <option value="2">2 Stars</option>
+        <option value="3">3 Stars</option>
+        <option value="4">4 Stars</option>
+        <option value="5">5 Stars</option>
+    </select>
+    <br>
+    <label for="reviewTextInput">Review</label>
+    <br>
+    <textarea name="reviewTextInput" id="reviewTextInput" cols="30" rows="10"></textarea>
+    <br>
+    <label for="professorNameInput">Professor</label>
+    <input name="professorNameInput" id="professorNameInput" type="text">
+    <br>
     <input class="submit" type="submit">
 </form>
 
