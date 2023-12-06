@@ -114,7 +114,7 @@ router
       if (updatedCourse.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
-      const professorCollection = await courses();
+      const professorCollection = await professors();
       const updatedProfessor = await professorCollection.updateOne({professorName: professorName}, {$push: {reviews: newReview}});
       if (updatedProfessor.modifiedCount === 0) {
         throw Error("Internal Server Error");
