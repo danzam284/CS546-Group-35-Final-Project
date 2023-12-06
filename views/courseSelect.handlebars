@@ -1,5 +1,5 @@
 <main>
-    <form action="/create" id="create-form" method="POST">
+    <form action="/course" id="course-select" method="POST">
         <h1>{{title}}</h1>
         <label for="courseNameInput">Course</label>
         <select name="courseNameInput" id="courseNameInput">
@@ -7,6 +7,6 @@
             <option value="{{name}}">{{name}}</option>
             {{/each}}
         </select>
-        <button type="submit">Submit</button>
+        <input type="submit" class="submit"></input>
     </form>
 </main>
