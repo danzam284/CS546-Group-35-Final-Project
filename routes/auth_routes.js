@@ -4,6 +4,7 @@ import * as helpers from '../helpers.js';
 import { registerUser, loginUser } from '../data/users.js';
 import { users, courses } from '../config/mongoCollections.js';
 import { addCourse } from '../data/course.js';
+import { addProfessor } from '../data/professor.js';
 
 const router = Router();
 
@@ -150,7 +151,36 @@ router
         return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "add course"});
       }
     } catch(e) {
-      return res.status(400).render("../views/addCourse", {error: e, title: "register"});
+      return res.status(400).render("../views/addCourse", {error: e, title: "add course"});
+    }
+  });
+
+  router
+  .route('/addProfessor')
+  .get(async (req, res) => {
+    res.render('../views/addProfessor', {title: "add professor"});
+  })
+  .post(async (req, res) => {
+    let professorFirstName = req.body.professorFirstNameInput;
+    let professorLastName = req.body.professorLastNameInput;
+    try {
+      professorFirstName = professorFirstName.trim(); helpers.validateProfessorName(professorFirstName, "first");
+      professorLastName = professorLastName.trim(); helpers.validateProfessorName(professorLastName, "last");
+    } catch(e) {
+      console.log(e);
+      return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
+    }
+
+    try {
+      const add = await addProfessor(professorFirstName, professorLastName);
+      if (add.insertedCourse) {
+        return res.redirect("/main");
+      } else {
+        return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "add professor"});
+      }
+    } catch(e) {
+      console.log(e);
+      return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
     }
   });
 

@@ -75,6 +75,13 @@ app.use('/addCourse', (req, res, next) => {
     }
 });
 
+app.use('/addProfessor', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
 
 app.use('/logout', (req, res, next) => {
     if (!req.session.user) {
