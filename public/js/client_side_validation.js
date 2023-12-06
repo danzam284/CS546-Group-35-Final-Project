@@ -9,39 +9,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
         event.preventDefault();
 
-        const emailAddress = document.getElementById('emailAddress').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (!emailAddress || !password || !confirmPassword) {
-            // Display error message for missing fields
-            return new Error('fields must not be missing'); 
-        }
-        
+        const emailAddressInput = document.getElementById('emailAddressInput').value;
+        const passwordInput = document.getElementById('passwordInput').value;
+        const confirmPasswordInput = document.getElementById('confirmPasswordInput').value;
+      
         // email input validation
         let validEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
 
-        if (!validEmail.test(emailAddress)) {
+        if (!validEmail.test(emailAddressInput)) { //check for all the valid email stuff above
             throw new Error ("please enter a valid email address")
         }
 
         // password input validation
         let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
 
-        if (!validPassword.test(password)) {
+        if (!validPassword.test(passwordInput)) {
             throw new Error('please enter valid password');
         }
 
-        if (!validPassword.test(confirmPassword)) {
+        if (!validPassword.test(confirmPasswordInput)) {
             throw new Error('please enter valid password');
         }
 
-        if (password !== confirmPassword) {
+        if (passwordInput !== confirmPasswordInput) {
             return new Error ('passwords must match');
-        }
-
-        if (!(roleInput === 'admin' || roleInput === 'user')) {
-            return new Error('invalid role');
         }
 
         registerForm.submit();
@@ -54,21 +45,21 @@ document.addEventListener('DOMContentLoaded', function () {
         
         event.preventDefault();
 
-        let emailAddress = document.getElementById('emailAddress').value;
-        let password = document.getElementById('password').value;
+        let emailAddressInput = document.getElementById('emailAddressInput').value;
+        let passwordInput = document.getElementById('passwordInput').value;
 
         
         // email input validation
         let validEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
 
-        if (!validEmail.test(emailAddress)) { //check for all the valid email stuff above
+        if (!validEmail.test(emailAddressInput)) { //check for all the valid email stuff above
             throw new Error ("please enter a valid email address")
         }
 
         // password input validation
         let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
 
-        if (!validPassword.test(password)) {
+        if (!validPassword.test(passwordInput)) {
             throw new Error('please enter valid password');
         }
 
