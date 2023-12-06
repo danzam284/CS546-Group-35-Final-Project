@@ -1,11 +1,14 @@
 <h1>Add Professor</h1>
 
 <p id="error">{{error}}</p>
+<p>Enter first and last name of the course professor:</p>
 
 <form action="/addProfessor" id="professor-form" method="POST">
     <label for="professorFirstNameInput">Professor First Name</label>
     <input name="professorFirstNameInput" id="professorFirstNameInput" type="text">
+    <br>
     <label for="professorLastNameInput">Professor Last Name</label>
     <input name="professorLastNameInput" id="professorLastNameInput" type="text">
+    <br>
     <input class="submit" type="submit">
 </form>
