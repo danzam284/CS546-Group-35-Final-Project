@@ -29,7 +29,7 @@ app.use('/', (req, res, next) => {
 
     if (req.session.user) {
         console.log("heree");
-        return res.redirect("/main");
+        return res.redirect("/home");
     } else {
         return res.redirect("/login");
     }
@@ -37,7 +37,7 @@ app.use('/', (req, res, next) => {
 
 app.use('/login', (req, res, next) => {
     if (req.session.user) {
-        return res.redirect("/main");
+        return res.redirect("/home");
     } else {
         next();
     }
@@ -45,13 +45,13 @@ app.use('/login', (req, res, next) => {
 
 app.use('/register', (req, res, next) => {
     if (req.session.user) {
-        return req.redirect("/main");
+        return req.redirect("/home");
     } else {
         next();
     }
 });
 
-app.use('/main', (req, res, next) => {
+app.use('/home', (req, res, next) => {
     if (!req.session.user) {
         return res.redirect("/login");
     } else {

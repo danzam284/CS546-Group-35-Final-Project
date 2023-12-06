@@ -174,7 +174,7 @@ router
     try {
       const add = await addProfessor(professorFirstName, professorLastName);
       if (add.insertedCourse) {
-        return res.redirect("/main");
+        return res.redirect("/home");
       } else {
         return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "add professor"});
       }
