@@ -20,3 +20,4 @@ export const addCourse = async (courseName) => {
 
     return {insertedCourse: true};
 }
+

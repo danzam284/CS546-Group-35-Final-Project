@@ -1,0 +1,9 @@
+<h1>{{courseName}}</h1>
+
+{{#each reviews}}
+    <div class="review">
+        <h2>{{this.title}}</h2>
+        <p>{{this.description}}</p>
+        <p>{{this.rating}}</p>
+    </div>
+{{/each}}
