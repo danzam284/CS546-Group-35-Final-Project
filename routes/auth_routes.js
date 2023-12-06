@@ -2,7 +2,7 @@
 import {Router} from 'express';
 import * as helpers from '../helpers.js';
 import { registerUser, loginUser } from '../data/users.js';
-import { users, courses } from '../config/mongoCollections.js';
+import { users, courses, professors } from '../config/mongoCollections.js';
 import { addCourse } from '../data/course.js';
 import { addProfessor } from '../data/professor.js';
 
@@ -82,8 +82,10 @@ router
   .route('/create')
   .get(async (req, res) => {
     const courseCollection = await courses();
+    const professorCollection = await professors();
     const allCourses = await courseCollection.find({}).toArray();
-    res.render('../views/create', {title: "create review", courses: allCourses});
+    const allProfessors = await professorCollection.find({}).toArray();
+    res.render('../views/create', {title: "create review", courses: allCourses, professors: allProfessors});
   })
   .post(async (req, res) => {
     //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
@@ -124,7 +126,6 @@ router
 
       return res.redirect("/home");
     } catch(e) {
-      console.log(e);
       return res.status(400).render("../views/create", {error: e, title: "create review"});
     }
     
@@ -167,7 +168,6 @@ router
       professorFirstName = professorFirstName.trim(); helpers.validateProfessorName(professorFirstName, "first");
       professorLastName = professorLastName.trim(); helpers.validateProfessorName(professorLastName, "last");
     } catch(e) {
-      console.log(e);
       return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
     }
 
@@ -179,7 +179,6 @@ router
         return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "add professor"});
       }
     } catch(e) {
-      console.log(e);
       return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
     }
   });
