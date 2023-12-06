@@ -154,6 +154,22 @@ router
     }
   });
 
+router
+  .route('/prof')
+  .get (async (req, res) => {
+    res.render('../views/prof', {title: "prof"});
+    
+  }
+);
+
+router
+  .route('/course')
+  .get (async (req, res) => {
+    res.render('../views/course', {title: "course"});
+    
+  }
+);
+
 
 router.route('/logout').get(async (req, res) => {
   req.session.destroy();
