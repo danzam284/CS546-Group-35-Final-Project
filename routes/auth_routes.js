@@ -94,10 +94,9 @@ router
     const reviewText = req.body.reviewTextInput;
     try {
       helpers.validateCourseName(courseName);
-      helpers.validateProfessorName(professorName);
-      helpers.validateRating(rating);
-      helpers.validateDifficulty(difficulty);
-      helpers.validateReviewText(reviewText);
+      helpers.validateName(professorName);
+      if (rating < 1 || rating > 5) throw "Invalid rating";
+      if (difficulty < 1 || difficulty > 5) throw "Invalid difficulty";
       const newReview = {
         courseName: courseName,
         professorName: professorName,
