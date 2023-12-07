@@ -183,10 +183,26 @@ router
     }
   });
 
-router.route('/prof').get(async (req, res) => {
-  res.render('../views/prof', {title: "prof"});
-}
-);
+router.route('/prof')
+  .get(async (req, res) => {
+    try {
+      const professorCollection = await professors();
+      const allProfessors = await professorCollection.find({}).toArray();
+      res.render('../views/professorSelect', { title: 'professor', professors: allProfessors });
+    } catch (error) {
+      return res.status(400).render("../views/professorSelect", {error: error, title: "professor"});
+    }
+  })
+  .post(async (req, res) => {
+    try {
+      const professorName = req.body.professorNameInput;
+      console.log(professorName);
+      res.render('../views/prof', { title: 'prof', professorName: professorName });
+    } catch (error) {
+      return res.status(400).render("../views/prof", {error: error, title: "prof"});
+    }
+  });
+
 
 router.route('/course').get(async (req, res) => {
   const courseCollection = await courses();
