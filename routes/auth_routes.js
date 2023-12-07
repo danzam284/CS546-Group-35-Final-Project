@@ -183,26 +183,25 @@ router
     }
   });
 
-router
-  .route('/prof')
-  .get (async (req, res) => {
-    res.render('../views/prof', {title: "prof"});
-    
-  }
+router.route('/prof').get(async (req, res) => {
+  res.render('../views/prof', {title: "prof"});
+}
 );
 
-router
-  .route('/course')
-  .get (async (req, res) => {
-    res.render('../views/course', {title: "course"});
-    
-  }
-);
-
+router.route('/course').get(async (req, res) => {
+  const courseCollection = await courses();
+  const allCourses = await courseCollection.find({}).toArray();
+  res.render('../views/courseSelect', {title: "course", courses: allCourses});
+}
+).post(async (req, res) => {
+  const courseName = req.body.courseNameInput;
+  console.log(courseName);
+  res.render('../views/course', {title: "course", courseName: courseName});
+});
 
 router.route('/logout').get(async (req, res) => {
   req.session.destroy();
-  res.render('../views/logout', {title: "logout"});
+  res.render('../views/login', {title: "login"});
 });
 
 export default router;

@@ -1,0 +1,12 @@
+<main>
+    <form action="/course" id="course-select" method="POST">
+        <h1>{{title}}</h1>
+        <label for="courseNameInput">Course</label>
+        <select name="courseNameInput" id="courseNameInput">
+            {{#each courses}}
+            <option value="{{name}}">{{name}}</option>
+            {{/each}}
+        </select>
+        <input type="submit" class="submit"></input>
+    </form>
+</main>
