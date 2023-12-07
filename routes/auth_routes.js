@@ -93,8 +93,8 @@ router
     const user = req.session.user;
     const courseName = req.body.courseNameInput;
     const professorName = req.body.professorNameInput;
-    const rating = req.body.ratingInput;
-    const difficulty = req.body.difficultyInput;
+    const rating = parseInt(req.body.ratingInput);
+    const difficulty = parseInt(req.body.difficultyInput);
     const reviewText = req.body.reviewTextInput;
     try {
       helpers.validateCourseName(courseName);
@@ -132,17 +132,18 @@ router
       }
 
       const selectedCourse = await courseCollection.findOne({name: courseName});
-      let newCourseAvgRating = ((selectedCourse.averageRating * selectedCourse.reviewIds.length) + rating) / (selectedCourse.reviewIds.length + 1);
-      let newCourseAvgDiff = ((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) + difficulty) / (selectedCourse.reviewIds.length + 1);
-      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {reviews: newReview, reviewIds: newReviewId}}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
+      let newCourseAvgRating = Math.round((((selectedCourse.averageRating * selectedCourse.reviewIds.length) + rating) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
+      let newCourseAvgDiff = Math.round((((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) + difficulty) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
+      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
       if (updatedCourse.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
       
       const selectedProfessor = await professorCollection.findOne({name: professorName});
-      let newProfessorAvgRating = ((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1);
-      let newProfessorAvgDiff = ((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) + difficulty) / (selectedProfessor.reviewIds.length + 1);
-      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviews: newReview, reviewIds: newReviewId}}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
+      console.log(selectedProfessor.averageRating, selectedProfessor.reviewIds.length, rating)
+      let newProfessorAvgRating = Math.round((((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
+      let newProfessorAvgDiff = Math.round((((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) + difficulty) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
+      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
       if (updatedProfessor.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
