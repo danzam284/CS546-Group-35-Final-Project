@@ -5,6 +5,7 @@ import { registerUser, loginUser } from '../data/users.js';
 import { users, courses, professors } from '../config/mongoCollections.js';
 import { addCourse } from '../data/course.js';
 import { addProfessor } from '../data/professor.js';
+import { ObjectId } from 'mongodb';
 
 const router = Router();
 
@@ -100,25 +101,48 @@ router
       helpers.validateName(professorName);
       if (rating < 1 || rating > 5) throw "Invalid rating";
       if (difficulty < 1 || difficulty > 5) throw "Invalid difficulty";
+
+      if (!reviewText || typeof reviewText !== 'string') throw 'Review text cannot be empty';
+      if (reviewText.trim().length === 0) throw 'Review text cannot be filled with just spaces';
+
+      const userCollection = await users();
+      const courseCollection = await courses();
+      const professorCollection = await professors();
+
+      const checkCourse = await courseCollection.findOne({name: courseName});
+      if (!checkCourse) throw "Course does not exist, please add it first before reviewing it.";
+      const checkProfessor = await professorCollection.findOne({name: professorName});
+      if (!checkProfessor) throw "Professor does not exist, please add them first before reviewing them.";
+
+      const newReviewId = new ObjectId();
       const newReview = {
-        courseName: courseName,
+        _id: newReviewId,
         professorName: professorName,
+        courseName: courseName,
+        reviewBody: reviewText,
         rating: rating,
         difficulty: difficulty,
-        reviewText: reviewText
+        date: new Date().toDateString(), 
+        reports: []
       };
-      const userCollection = await users();
-      const updatedUser = await userCollection.updateOne({_id: user._id}, {$push: {reviews: newReview}});
+      
+      const updatedUser = await userCollection.updateOne({_id: new ObjectId(user._id)}, {$push: {reviews: newReview}});
       if (updatedUser.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
-      const courseCollection = await courses();
-      const updatedCourse = await courseCollection.updateOne({courseName: courseName}, {$push: {reviews: newReview}});
+
+      const selectedCourse = await courseCollection.findOne({name: courseName});
+      let newCourseAvgRating = ((selectedCourse.averageRating * selectedCourse.reviewIds.length) + rating) / (selectedCourse.reviewIds.length + 1);
+      let newCourseAvgDiff = ((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) + difficulty) / (selectedCourse.reviewIds.length + 1);
+      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {reviews: newReview, reviewIds: newReviewId}}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
       if (updatedCourse.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
-      const professorCollection = await professors();
-      const updatedProfessor = await professorCollection.updateOne({professorName: professorName}, {$push: {reviews: newReview}});
+      
+      const selectedProfessor = await professorCollection.findOne({name: professorName});
+      let newProfessorAvgRating = ((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1);
+      let newProfessorAvgDiff = ((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) + difficulty) / (selectedProfessor.reviewIds.length + 1);
+      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviews: newReview, reviewIds: newReviewId}}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
       if (updatedProfessor.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
@@ -126,6 +150,7 @@ router
 
       return res.redirect("/home");
     } catch(e) {
+      console.log(e);
       return res.status(400).render("../views/create", {error: e, title: "create review"});
     }
     

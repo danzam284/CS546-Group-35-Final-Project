@@ -48,5 +48,5 @@ export const loginUser = async (emailAddress, password) => {
   if (!comparePasswords) {
     throw Error("Either the email address or password is invalid");
   }
-  return {"emailAddress": user.emailAddress, "username": user.username, "admin": user.admin};
+  return {"_id": user._id ,"emailAddress": user.emailAddress, "username": user.username, "admin": user.admin};
 };
