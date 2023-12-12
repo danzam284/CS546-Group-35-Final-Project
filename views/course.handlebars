@@ -1,9 +1,17 @@
-<h1>{{courseName}}</h1>
+<h1>Reviews for {{courseName}}</h1>
+<h2>Average Rating: {{rating}}</h2>
+<h2>Average Difficulty: {{difficulty}}</h2>
+
+<p id="error">{{error}}</p>
 
 {{#each reviews}}
     <div class="review">
-        <h2>{{this.title}}</h2>
-        <p>{{this.description}}</p>
-        <p>{{this.rating}}</p>
+        <h3>{{professorName}}</h2>
+        <p>{{date}}</p>
+        <p>Rating: {{rating}}</p>
+        <p>Difficulty: {{difficulty}}</p>
+        <p>Description: {{reviewBody}}</p>
     </div>
 {{/each}}
+
+<a href="/course">Back</a>

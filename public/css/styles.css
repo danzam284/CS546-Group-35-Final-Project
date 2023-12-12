@@ -62,3 +62,15 @@ a {
 li {
     color: #c0392b;
 }
+
+.review {
+    border: 1px solid black;
+    width: 500px;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.review:hover {
+    background-color: #333;
+}

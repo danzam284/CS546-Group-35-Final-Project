@@ -1,0 +1,13 @@
+<h1>Professors for {{courseName}}</h1>
+
+<p id="error">{{error}}</p>
+
+{{#each professors}}
+    <div class="professor">
+        <h3>{{name}}</h2>
+        <p>Rating: {{averageRating}}</p>
+        <p>Difficulty: {{averageDifficulty}}</p>
+    </div>
+{{/each}}
+
+<a href="/bestProfessors">Back</a>

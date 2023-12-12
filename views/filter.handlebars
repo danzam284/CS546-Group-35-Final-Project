@@ -1,13 +1,17 @@
 <p id="error">{{error}}</p>
-
 <main>
-    <form action="/course" id="course-select" method="POST">
+    <form action="/bestProfessors" id="course-filter" method="POST">
         <h1>{{title}}</h1>
         <label for="courseNameInput">Course</label>
         <select name="courseNameInput" id="courseNameInput">
             {{#each courses}}
             <option value="{{name}}">{{name}}</option>
             {{/each}}
+        </select>
+        <label for="filterByInput">Filter By</label>
+        <select name="filterByInput" id="filterByInput">
+            <option value="rat">Highest Rating</option>
+            <option value="dif">Lowest Difficulty</option>
         </select>
         <input type="submit" class="submit"></input>
     </form>

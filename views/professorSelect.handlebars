@@ -1,9 +1,11 @@
+<p id="error">{{error}}</p>
+
 <main>
     <form action="/prof" id="prof-select" method="POST">
         <h1>{{title}}</h1>
         <label for="professorNameInput">Professor</label>
         <select name="professorNameInput" id="professorNameInput">
-            {{#each professor}}
+            {{#each professors}}
             <option value="{{name}}">{{name}}</option>
             {{/each}}
         </select>
