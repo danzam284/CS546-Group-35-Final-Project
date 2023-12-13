@@ -212,7 +212,7 @@ router.route('/prof')
     try {
       const professorCollection = await professors();
       const allProfessors = await professorCollection.find({}).toArray();
-      res.render('../views/professorSelect', { title: 'professor', professors: allProfessors });
+      res.render('../views/professorSelect', { title: 'Professor', professors: allProfessors });
     } catch (error) {
       return res.status(400).render("../views/professorSelect", {error: error, title: "professor"});
     }
@@ -247,7 +247,7 @@ router.route('/course').get(async (req, res) => {
   try {
     const courseCollection = await courses();
     const allCourses = await courseCollection.find({}).toArray();
-    res.render('../views/courseSelect', { title: 'course', courses: allCourses });
+    res.render('../views/courseSelect', { title: 'Course', courses: allCourses });
   } catch (error) {
     return res.status(400).render("../views/courseSelect", {error: error, title: "course"});
   }
@@ -325,5 +325,33 @@ router.route('/logout').get(async (req, res) => {
   req.session.destroy();
   res.render('../views/login', {title: "login"});
 });
+
+router.get('/report-review/:id', async (req, res) => {
+  const reviewId = req.params.id;
+
+  try {
+      res.render('../views/reportReview', { reviewId });
+  } 
+  catch (error) {
+      return res.status(500).render("../views/reportReview", {error: "Internal Server Error", title: "report review"});
+  }
+});
+router.post('/report-review/:id', async (req, res) => {
+  const reviewId = req.params.id;
+  const explanation = req.body.explanation;
+
+  try {
+    const userCollection = await users();
+    await userCollection.updateOne(
+      { 'reviews._id': reviewId },
+      { $set: { 'reviews.$.reported': true, 'reviews.$.explanation': explanation } }
+    );
+
+    return res.redirect(`/report-review/${reviewId}?successMessage=Review+reported+successfully`);
+  } catch (error) {
+    return res.status(500).render("../views/reportReview", { error: "Internal Server Error", title: "report review" });
+  }
+});
+
 
 export default router;
