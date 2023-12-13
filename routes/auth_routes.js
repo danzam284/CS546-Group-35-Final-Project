@@ -74,7 +74,9 @@ router
     }
   });
 
-router.route('/home').get(async (req, res) => {
+router
+.route('/home')
+.get(async (req, res) => {
   const user = req.session.user;
   res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress});
 });
@@ -117,7 +119,9 @@ router
       const newReviewId = new ObjectId();
       const newReview = {
         _id: newReviewId,
+        professorId: checkProfessor._id,
         professorName: professorName,
+        courseId: checkCourse._id,
         courseName: courseName,
         reviewBody: reviewText,
         rating: rating,
@@ -135,14 +139,14 @@ router
       const selectedProfessor = await professorCollection.findOne({name: professorName});
       let newCourseAvgRating = Math.round((((selectedCourse.averageRating * selectedCourse.reviewIds.length) + rating) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
       let newCourseAvgDiff = Math.round((((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) + difficulty) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
-      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {professorIds: selectedProfessor._id, reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
+      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {professorIds: selectedProfessor._id, reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
       if (updatedCourse.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
       
       let newProfessorAvgRating = Math.round((((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
       let newProfessorAvgDiff = Math.round((((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) + difficulty) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
-      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
+      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {courseIds: selectedCourse._id, reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
       if (updatedProfessor.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
@@ -152,6 +156,26 @@ router
     } catch(e) {
       return res.status(400).render("../views/create", {error: e, title: "create review"});
     }
+    
+  });
+
+router
+  .route('/delete')
+  .get(async (req, res) => {
+    try {
+      let user = req.session.user;
+      const userCollection = await users();
+
+      const currentUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      const allReviews = currentUser.reviews;
+      if (allReviews.length === 0) throw "You have no reviews to delete";
+
+      res.render('../views/delete', {title: "Delete Review", reviews: allReviews});
+    } catch (error) {
+      
+    }
+  })
+  .delete(async (req, res) => {
     
   });
 
@@ -207,7 +231,8 @@ router
     }
   });
 
-router.route('/prof')
+router
+.route('/prof')
   .get(async (req, res) => {
     try {
       const professorCollection = await professors();
@@ -230,6 +255,7 @@ router.route('/prof')
       const allUsers = await userCollection.find({}).toArray();
       for (let i = 0; i < allUsers.length; i++) {
         for (let j = 0; j < allUsers[i].reviews.length; j++) {
+          console.log(allUsers[i].reviews[j]);
           if (allUsers[i].reviews[j].professorName === professorName) {
             professorReviews.push(allUsers[i].reviews[j]);
           }
@@ -243,7 +269,9 @@ router.route('/prof')
   });
 
 
-router.route('/course').get(async (req, res) => {
+router
+.route('/course')
+.get(async (req, res) => {
   try {
     const courseCollection = await courses();
     const allCourses = await courseCollection.find({}).toArray();
@@ -277,7 +305,9 @@ router.route('/course').get(async (req, res) => {
   }
 });
 
-router.route('/bestProfessors').get(async (req, res) => {
+router
+.route('/bestProfessors')
+.get(async (req, res) => {
   try {
     const courseCollection = await courses();
     const allCourses = await courseCollection.find({}).toArray();
