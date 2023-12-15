@@ -346,8 +346,9 @@ router.post('/report-review/:id', async (req, res) => {
       { 'reviews._id': reviewId },
       { $set: { 'reviews.$.reported': true, 'reviews.$.explanation': explanation } }
     );
+    
 
-    return res.redirect(`/report-review/${reviewId}?successMessage=Review+reported+successfully`);
+    return res.redirect(`/home`);
   } catch (error) {
     return res.status(500).render("../views/reportReview", { error: "Internal Server Error", title: "report review" });
   }
