@@ -76,7 +76,7 @@ router
 
 router.route('/home').get(async (req, res) => {
   const user = req.session.user;
-  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress});
+  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress, admin: user.admin});
 });
 
 router
@@ -350,6 +350,22 @@ router.post('/report-review/:id', async (req, res) => {
     return res.redirect(`/report-review/${reviewId}?successMessage=Review+reported+successfully`);
   } catch (error) {
     return res.status(500).render("../views/reportReview", { error: "Internal Server Error", title: "report review" });
+  }
+});
+
+router.get('/admin', async (req, res) => {
+  try {
+    const userCollection = await users();
+    const allUsers = await userCollection.find({}).toArray();
+    const allReviews = [];
+    for (let i = 0; i < allUsers.length; i++) {
+      for (let j = 0; j < allUsers[i].reviews.length; j++) {
+        allReviews.push(allUsers[i].reviews[j]);
+      }
+    }
+    res.render('../views/admin', { title: 'Admin', reviews: allReviews });
+  } catch (error) {
+    return res.status(400).render("../views/home", {error: error, title: "home"});
   }
 });
 
