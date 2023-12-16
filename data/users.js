@@ -8,7 +8,7 @@ export const registerUser = async (
   username,
   password,
 ) => {
-  emailAddress = emailAddress.trim(); helpers.validateEmail(emailAddress);
+  emailAddress = emailAddress.trim(); helpers.validateEmailStevens(emailAddress);
   username = username.trim(); helpers.validateUsername(username);
   password = password.trim(); helpers.validatePassword(password);
 

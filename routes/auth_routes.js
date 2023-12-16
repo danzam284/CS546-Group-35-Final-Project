@@ -26,7 +26,7 @@ router
     let password = xss(req.body.passwordInput);
     let confirmedPassword = xss(req.body.confirmPasswordInput);
     try {
-      emailAddress = emailAddress.trim(); helpers.validateEmail(emailAddress);
+      emailAddress = emailAddress.trim(); helpers.validateEmailStevens(emailAddress);
       username = username.trim(); helpers.validateUsername(username);
       password = password.trim(); helpers.validatePassword(password);
       confirmedPassword = confirmedPassword.trim(); helpers.validatePassword(confirmedPassword);
@@ -192,17 +192,39 @@ router
   .route('/delete/:reviewId')
   .delete(async (req, res) => {
     try {
-      let user = req.session.user;
+      const reviewId = req.params.reviewId;
+      let userId = req.session.user._id;
+
       const userCollection = await users();
       const courseCollection = await courses();
       const professorCollection = await professors();
+      
+      //If deleter is an admin, finds user whose post is being deleted
+      if (req.session.user.admin) {
+        let found = false;
+        const allUsers = await userCollection.find({}).toArray();
+        for (let i = 0; i < allUsers.length; i++) {
+          for (let j = 0; j < allUsers[i].reviews.length; j++) {
+            if (allUsers[i].reviews[j]._id.equals(new ObjectId(reviewId))) {
+              found = true;
+              userId = allUsers[i]._id;
+              break;
+            }
+          }
+          if (found) {
+            break;
+          }
+        }
+        if (!found) {
+          throw Error("Post could not be found.")
+        }
+      }
 
       //check incase user gets to delete route somehow without using the delete page
-      const currentUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      const currentUser = await userCollection.findOne({_id: new ObjectId(userId)});
       let allReviews = currentUser.reviews;
       if (allReviews.length === 0) throw "You have no reviews to delete aaa";
 
-      const reviewId = req.params.reviewId;
       if (!ObjectId.isValid(reviewId)) throw "Invalid review ID";
       const selectedReview = allReviews.find((review) => review._id.equals(new ObjectId(reviewId)));
       if (!selectedReview) throw "Review not found";
@@ -212,7 +234,7 @@ router
       const reviewDifficulty = selectedReview.difficulty;
 
       allReviews = allReviews.filter((review) => !review._id.equals(new ObjectId(reviewId)));
-      const updatedUser = await userCollection.updateOne({_id: new ObjectId(user._id)}, {$set: {reviews: allReviews}});
+      const updatedUser = await userCollection.updateOne({_id: new ObjectId(userId)}, {$set: {reviews: allReviews}});
       if (updatedUser.modifiedCount === 0) throw "Internal Server Error";
 
       //Removing the reviewId from course and professor and updating their average rating/difficulty
@@ -236,7 +258,7 @@ router
       }
       
       //check if this course and professor have any other reviews together and remove them from each other if they do not
-      const getUpdatedUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      const getUpdatedUser = await userCollection.findOne({_id: new ObjectId(userId)});
       const newReviewArray = getUpdatedUser.reviews;
       const check = newReviewArray.filter((review) => review.courseId.equals(new ObjectId(courseId)) && review.professorId.equals(new ObjectId(professorId)));
       let updatedCourse, updatedProfessor;
@@ -253,8 +275,9 @@ router
       }
       console.log('Successfully deleted review!!');
 
-      return res.redirect("/delete");
+      return res.redirect("/home");
     } catch(e) {
+      console.log(e);
       return res.status(400).render("../views/delete", {error: e, title: "Delete Review"});
     }
   });
@@ -335,7 +358,6 @@ router
       const allUsers = await userCollection.find({}).toArray();
       for (let i = 0; i < allUsers.length; i++) {
         for (let j = 0; j < allUsers[i].reviews.length; j++) {
-          console.log(allUsers[i].reviews[j]);
           if (allUsers[i].reviews[j].professorName === professorName) {
             professorReviews.push(allUsers[i].reviews[j]);
           }
@@ -343,7 +365,6 @@ router
       }
       res.render('../views/prof', { title: 'prof', professorName: professorName, reviews: professorReviews, rating: checkProfessor.averageRating, difficulty: checkProfessor.averageDifficulty });
     } catch (error) {
-      console.log(error);
       return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
     }
   });
@@ -380,7 +401,6 @@ router
     }
     res.render('../views/course', { title: 'Courses', courseName: courseName, reviews: courseReviews, rating: checkCourse.averageRating, difficulty: checkCourse.averageDifficulty });
   } catch (error) {
-    console.log(error);
     return res.status(400).render("../views/courseSelect", {error: error, title: "Courses"});
   }
 });
@@ -426,7 +446,6 @@ router
 
     res.render('../views/filtered', { title: 'Filtered Professors', courseName: courseName, professors: courseProfessors});
   } catch (error) {
-    console.log(error);
     return res.status(400).render("../views/filtered", {error: error, title: "Filtered Professors"});
   }
 });
@@ -457,15 +476,34 @@ router
 
   try {
     const userCollection = await users();
+    const user = await userCollection.findOne({'reviews._id': new ObjectId(reviewId)});
+
+    //Makes sure you cannot report your own post.
+    if (user._id.equals(new ObjectId(req.session.user._id))) {
+      throw Error("You cannot report your own post");
+    }
+
+    //Makes sure post has not already been reported
+    for (let i = 0; i < user.reviews.length; i++) {
+      if (user.reviews[i]._id.equals(new ObjectId(reviewId))) {
+        for (let j = 0; j < user.reviews[i].reports.length; j++) {
+          if (user.reviews[i].reports[j].reported === req.session.user._id) {
+            throw Error("You have already reported this post.");
+          }
+        }
+        break;
+      }
+    }
+
+    const report = {reported: req.session.user._id, reason: explanation};
     await userCollection.updateOne(
-      { 'reviews._id': reviewId },
-      { $set: { 'reviews.$.reported': true, 'reviews.$.explanation': explanation } }
+      { 'reviews._id': new ObjectId(reviewId) },
+      { $push: { 'reviews.$.reports': report} }
     );
-    
 
     return res.redirect(`/home`);
   } catch (error) {
-    return res.status(500).render("../views/reportReview", { error: "Internal Server Error", title: "report review" });
+    return res.status(400).render("../views/reportReview", { error: error, title: "report review" });
   }
 });
 
@@ -479,6 +517,7 @@ router.get('/admin', async (req, res) => {
         allReviews.push(allUsers[i].reviews[j]);
       }
     }
+    allReviews.sort((a, b) => b.reports.length - a.reports.length);
     res.render('../views/admin', { title: 'Admin', reviews: allReviews });
   } catch (error) {
     return res.status(400).render("../views/home", {error: error, title: "home"});
