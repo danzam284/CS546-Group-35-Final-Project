@@ -14,13 +14,13 @@ export const addProfessor = async (firstName, lastName) => {
     const professorCollection = await professors();
     const professorsWithName = await professorCollection.findOne({'name': professorName});
     if (professorsWithName) {
-        throw Error("A professor already exists with this name.");
+        throw "A professor already exists with this name.";
     }
 
     const newProfessor = {name: professorName, averageRating: 0, averageDifficulty: 0, reviewIds: [], courseIds: []};
     const insertInfo = await professorCollection.insertOne(newProfessor);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-        throw Error("Could not add professor.");
+        throw "Could not add professor.";
     }
 
     return {insertedCourse: true};

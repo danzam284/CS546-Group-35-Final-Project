@@ -35,11 +35,11 @@ router
       //https://stackoverflow.com/questions/7101703/how-do-i-make-case-insensitive-queries-on-mongodb
       const usersWithEmail = await userCollection.findOne({'emailAddress': {'$regex': "^" + emailAddress + "$", $options: 'i'}});
       if (usersWithEmail) {
-        throw Error("There is already a user with that email address.");
+        throw "There is already a user with that email address.";
       }
       const usersWithUsername = await userCollection.findOne({'username': {'$regex': "^" + username + "$", $options: 'i'}});
       if (usersWithUsername) {
-        throw Error("There is already a user with that username.");
+        throw "There is already a user with that username.";
       }
     } catch(e) {
       return res.status(400).render("../views/register", {error: e, title: "register"});
@@ -133,7 +133,7 @@ router
       
       const updatedUser = await userCollection.updateOne({_id: new ObjectId(user._id)}, {$push: {reviews: newReview}});
       if (updatedUser.modifiedCount === 0) {
-        throw Error("Internal Server Error");
+        throw "Internal Server Error";
       }
 
       const selectedCourse = await courseCollection.findOne({name: courseName});
@@ -148,7 +148,7 @@ router
         updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
       }
       if (updatedCourse.modifiedCount === 0) {
-        throw Error("Internal Server Error");
+        throw "Internal Server Error";
       }
       
       let newProfessorAvgRating = Math.round((((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
@@ -161,7 +161,7 @@ router
         updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
       }
       if (updatedProfessor.modifiedCount === 0) {
-        throw Error("Internal Server Error");
+        throw "Internal Server Error";
       }
       console.log("Review successfully added to user, course, and professor.")
 
@@ -216,7 +216,7 @@ router
           }
         }
         if (!found) {
-          throw Error("Post could not be found.")
+          throw "Post could not be found.";
         }
       }
 
@@ -351,7 +351,7 @@ router
       const professorCollection = await professors();
       const checkProfessor = await professorCollection.findOne({name: professorName});
       if (!checkProfessor) {
-        throw Error("Professor not found.");
+        throw "Professor not found.";
       }
       const userCollection = await users();
       const professorReviews = [];
@@ -387,7 +387,7 @@ router
     const courseCollection = await courses();
     const checkCourse = await courseCollection.findOne({name: courseName});
     if (!checkCourse) {
-      throw Error("Course not found.");
+      throw "Course not found.";
     }
     const userCollection = await users();
     const courseReviews = [];
@@ -421,12 +421,12 @@ router
     const courseName = xss(req.body.courseNameInput).trim();
     const filter = xss(req.body.filterByInput).trim();
     if (filter !== "rat" && filter !== "dif") {
-      throw Error("Invalid filter");
+      throw "Invalid filter";
     }
     const courseCollection = await courses();
     const checkCourse = await courseCollection.findOne({name: courseName});
     if (!checkCourse) {
-      throw Error("Course not found.");
+      throw "Course not found.";
     }
     const professorCollection = await professors();
     const courseProfessors = [];
@@ -480,7 +480,7 @@ router
 
     //Makes sure you cannot report your own post.
     if (user._id.equals(new ObjectId(req.session.user._id))) {
-      throw Error("You cannot report your own post");
+      throw "You cannot report your own post";
     }
 
     //Makes sure post has not already been reported
@@ -488,7 +488,7 @@ router
       if (user.reviews[i]._id.equals(new ObjectId(reviewId))) {
         for (let j = 0; j < user.reviews[i].reports.length; j++) {
           if (user.reviews[i].reports[j].reported === req.session.user._id) {
-            throw Error("You have already reported this post.");
+            throw "You have already reported this post.";
           }
         }
         break;
@@ -524,5 +524,18 @@ router.get('/admin', async (req, res) => {
   }
 });
 
+router.get('/checkProfessor/:professor', async (req, res) => {
+  const professorName = req.params.professor.trim();
+  const split = professorName.split(" ");
+  const professorCollection = await professors();
+  try {
+    helpers.validateProfessorName(split[0], "first");
+    helpers.validateProfessorName(split[1], "last");
+    const prof = await professorCollection.findOne({name: professorName});
+    res.send(prof);
+  } catch(e) {
+    res.send({error: e});
+  }
+});
 
 export default router;

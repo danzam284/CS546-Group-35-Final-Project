@@ -9,13 +9,13 @@ export const addCourse = async (courseName) => {
     const courseCollection = await courses();
     const coursesWithName = await courseCollection.findOne({'name': courseName});
     if (coursesWithName) {
-        throw Error("A course already exists with this name.");
+        throw "A course already exists with this name.";
     }
 
     const newCourse = {name: courseName, averageRating: 0, averageDifficulty: 0, reviewIds: [], professorIds: []};
     const insertInfo = await courseCollection.insertOne(newCourse);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-        throw Error("Could not add course.");
+        throw "Could not add course.";
     }
 
     return {insertedCourse: true};
