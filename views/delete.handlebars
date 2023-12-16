@@ -9,8 +9,9 @@
         <p>Rating: {{rating}}</p>
         <p>Difficulty: {{difficulty}}</p>
         <p>Description: {{reviewBody}}</p>
-        <form action="/delete/{{_id}}" method="DELETE">
-            <Label for="delete-button"></Label>
+        <form action="/delete/{{_id}}" method="POST">
+            <Label for="delete-button" hidden></Label>
+            <input name="switch" value="delete" hidden>
             <input id="delete-button" type="submit" value="Delete">
         </form>
     </div>
@@ -18,3 +19,5 @@
 {{else}}
   <p>You have no reviews to delete</p>
 {{/if}}
+
+<a href="/home">Back</a>
