@@ -121,6 +121,7 @@ function validateProfessorName(n, type) {
 export {
     validateString,
     validateEmail,
+    validateEmailStevens,
     validateName,
     validatePassword,
     validateUsername,
