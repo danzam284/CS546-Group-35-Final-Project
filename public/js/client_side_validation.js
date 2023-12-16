@@ -71,11 +71,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validPassword.test(passwordInput)) {
           document.getElementById("error").innerHTML = "please enter a valid password";
         }
-
         loginForm.submit();
         
       });
     }
-  
-
 });
