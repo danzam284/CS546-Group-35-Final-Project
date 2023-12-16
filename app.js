@@ -28,7 +28,6 @@ app.use('/', (req, res, next) => {
     }
 
     if (req.session.user) {
-        console.log("heree");
         return res.redirect("/home");
     } else {
         return res.redirect("/login");
@@ -89,6 +88,25 @@ app.use('/logout', (req, res, next) => {
     } else {
         next();
     }
+});
+
+app.use('/delete', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
+app.use('/delete/:reviewId' , (req, res, next) => {
+  if (!req.session.user) {
+      return res.redirect("/login");
+  } else if (req.body.switch === "delete") {
+    req.method = "DELETE";
+    next();
+  } else {
+    next();
+  }
 });
 
 configRoutes(app);

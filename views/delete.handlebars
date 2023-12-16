@@ -1,0 +1,23 @@
+<h1>Delete Your Reviews</h1>
+
+{{#if reviews}}
+  {{#each reviews}}
+    <div class="review">
+        <h2>{{courseName}}</h2>
+        <h3>{{professorName}}</h3>
+        <p>{{date}}</p>
+        <p>Rating: {{rating}}</p>
+        <p>Difficulty: {{difficulty}}</p>
+        <p>Description: {{reviewBody}}</p>
+        <form action="/delete/{{_id}}" method="POST">
+            <Label for="delete-button" hidden></Label>
+            <input name="switch" value="delete" hidden>
+            <input id="delete-button" type="submit" value="Delete">
+        </form>
+    </div>
+  {{/each}}
+{{else}}
+  <p>You have no reviews to delete</p>
+{{/if}}
+
+<a href="/home">Back</a>

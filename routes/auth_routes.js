@@ -75,7 +75,9 @@ router
     }
   });
 
-router.route('/home').get(async (req, res) => {
+router
+.route('/home')
+.get(async (req, res) => {
   const user = req.session.user;
   res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress, admin: user.admin});
 });
@@ -118,7 +120,9 @@ router
       const newReviewId = new ObjectId();
       const newReview = {
         _id: newReviewId,
+        professorId: checkProfessor._id,
         professorName: professorName,
+        courseId: checkCourse._id,
         courseName: courseName,
         reviewBody: reviewText,
         rating: rating,
@@ -136,14 +140,26 @@ router
       const selectedProfessor = await professorCollection.findOne({name: professorName});
       let newCourseAvgRating = Math.round((((selectedCourse.averageRating * selectedCourse.reviewIds.length) + rating) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
       let newCourseAvgDiff = Math.round((((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) + difficulty) / (selectedCourse.reviewIds.length + 1)) * 100) / 100;
-      const updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {professorIds: selectedProfessor._id, reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
+      const containsProf = await courseCollection.findOne({name: courseName, professorIds: selectedProfessor._id});
+      let updatedCourse;
+      if (!containsProf) {
+        updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {professorIds: selectedProfessor._id, reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
+      } else {
+        updatedCourse = await courseCollection.updateOne({name: courseName}, {$push: {reviewIds: newReviewId}, $set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}});
+      }
       if (updatedCourse.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
       
       let newProfessorAvgRating = Math.round((((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) + rating) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
       let newProfessorAvgDiff = Math.round((((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) + difficulty) / (selectedProfessor.reviewIds.length + 1)) * 100) / 100;
-      const updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviews: newReview, reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
+      const containsCourse = await professorCollection.findOne({name: professorName, courseIds: selectedCourse._id});
+      let updatedProfessor;
+      if (!containsCourse) {
+        updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {courseIds: selectedCourse._id, reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
+      } else {  
+        updatedProfessor = await professorCollection.updateOne({name: professorName}, {$push: {reviewIds: newReviewId}, $set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}});
+      }
       if (updatedProfessor.modifiedCount === 0) {
         throw Error("Internal Server Error");
       }
@@ -154,6 +170,93 @@ router
       return res.status(400).render("../views/create", {error: e, title: "create review"});
     }
     
+  });
+
+router
+  .route('/delete')
+  .get(async (req, res) => {
+    try {
+      let user = req.session.user;
+      const userCollection = await users();
+
+      const currentUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      const allReviews = currentUser.reviews;
+      if (allReviews.length === 0) throw "You have no reviews to delete";
+
+      res.render('../views/delete', {title: "Delete Review", reviews: allReviews});
+    } catch (error) {
+      return res.render("../views/delete", {error: error, title: "Delete Review"});
+    }
+  });
+router
+  .route('/delete/:reviewId')
+  .delete(async (req, res) => {
+    try {
+      let user = req.session.user;
+      const userCollection = await users();
+      const courseCollection = await courses();
+      const professorCollection = await professors();
+
+      //check incase user gets to delete route somehow without using the delete page
+      const currentUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      let allReviews = currentUser.reviews;
+      if (allReviews.length === 0) throw "You have no reviews to delete aaa";
+
+      const reviewId = req.params.reviewId;
+      if (!ObjectId.isValid(reviewId)) throw "Invalid review ID";
+      const selectedReview = allReviews.find((review) => review._id.equals(new ObjectId(reviewId)));
+      if (!selectedReview) throw "Review not found";
+      const courseId = selectedReview.courseId;
+      const professorId = selectedReview.professorId;
+      const reviewRating = selectedReview.rating;
+      const reviewDifficulty = selectedReview.difficulty;
+
+      allReviews = allReviews.filter((review) => !review._id.equals(new ObjectId(reviewId)));
+      const updatedUser = await userCollection.updateOne({_id: new ObjectId(user._id)}, {$set: {reviews: allReviews}});
+      if (updatedUser.modifiedCount === 0) throw "Internal Server Error";
+
+      //Removing the reviewId from course and professor and updating their average rating/difficulty
+      const selectedCourse = await courseCollection.findOne({_id: courseId});
+      const selectedProfessor = await professorCollection.findOne({_id: professorId});
+
+      let newCourseAvgRating, newCourseAvgDiff, newProfessorAvgRating, newProfessorAvgDiff;
+      if (selectedCourse.reviewIds.length === 1) {
+        newCourseAvgRating = 0;
+        newCourseAvgDiff = 0;
+      } else {
+        newCourseAvgRating = Math.round((((selectedCourse.averageRating * selectedCourse.reviewIds.length) - reviewRating) / (selectedCourse.reviewIds.length - 1)) * 100) / 100;
+        newCourseAvgDiff = Math.round((((selectedCourse.averageDifficulty * selectedCourse.reviewIds.length) - reviewDifficulty) / (selectedCourse.reviewIds.length - 1)) * 100) / 100;
+      }
+      if (selectedProfessor.reviewIds.length === 1) {
+        newProfessorAvgRating = 0;
+        newProfessorAvgDiff = 0;
+      } else {
+        newProfessorAvgRating = Math.round((((selectedProfessor.averageRating * selectedProfessor.reviewIds.length) - reviewRating) / (selectedProfessor.reviewIds.length - 1)) * 100) / 100;
+        newProfessorAvgDiff = Math.round((((selectedProfessor.averageDifficulty * selectedProfessor.reviewIds.length) - reviewDifficulty) / (selectedProfessor.reviewIds.length - 1)) * 100) / 100;
+      }
+      
+      //check if this course and professor have any other reviews together and remove them from each other if they do not
+      const getUpdatedUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      const newReviewArray = getUpdatedUser.reviews;
+      const check = newReviewArray.filter((review) => review.courseId.equals(new ObjectId(courseId)) && review.professorId.equals(new ObjectId(professorId)));
+      let updatedCourse, updatedProfessor;
+      if (check.length !== 0) {
+        updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
+        if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
+        updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
+        if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
+      } else {
+        updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {professorIds: professorId, reviewIds: new ObjectId(reviewId)}});
+        if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
+        updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {courseIds: courseId, reviewIds: new ObjectId(reviewId)}});
+        if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
+      }
+      console.log('Successfully deleted review!!');
+
+      return res.redirect("/delete");
+    } catch(e) {
+      return res.status(400).render("../views/delete", {error: e, title: "Delete Review"});
+    }
   });
 
 router
@@ -174,17 +277,17 @@ router
       if (add.insertedCourse) {
         return res.redirect("/home");
       } else {
-        return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "add course"});
+        return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "Add course"});
       }
     } catch(e) {
-      return res.status(400).render("../views/addCourse", {error: e, title: "add course"});
+      return res.status(400).render("../views/addCourse", {error: e, title: "Add course"});
     }
   });
 
   router
   .route('/addProfessor')
   .get(async (req, res) => {
-    res.render('../views/addProfessor', {title: "add professor"});
+    res.render('../views/addProfessor', {title: "Add professor"});
   })
   .post(async (req, res) => {
     let professorFirstName = xss(req.body.professorFirstNameInput);
@@ -193,7 +296,7 @@ router
       professorFirstName = professorFirstName.trim(); helpers.validateProfessorName(professorFirstName, "first");
       professorLastName = professorLastName.trim(); helpers.validateProfessorName(professorLastName, "last");
     } catch(e) {
-      return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
+      return res.status(400).render("../views/addProfessor", {error: e, title: "Add professor"});
     }
 
     try {
@@ -201,14 +304,15 @@ router
       if (add.insertedCourse) {
         return res.redirect("/home");
       } else {
-        return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "add professor"});
+        return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "Add professor"});
       }
     } catch(e) {
-      return res.status(400).render("../views/addProfessor", {error: e, title: "add professor"});
+      return res.status(400).render("../views/addProfessor", {error: e, title: "Add professor"});
     }
   });
 
-router.route('/prof')
+router
+.route('/prof')
   .get(async (req, res) => {
     try {
       const professorCollection = await professors();
@@ -231,6 +335,7 @@ router.route('/prof')
       const allUsers = await userCollection.find({}).toArray();
       for (let i = 0; i < allUsers.length; i++) {
         for (let j = 0; j < allUsers[i].reviews.length; j++) {
+          console.log(allUsers[i].reviews[j]);
           if (allUsers[i].reviews[j].professorName === professorName) {
             professorReviews.push(allUsers[i].reviews[j]);
           }
@@ -244,13 +349,15 @@ router.route('/prof')
   });
 
 
-router.route('/course').get(async (req, res) => {
+router
+.route('/course')
+.get(async (req, res) => {
   try {
     const courseCollection = await courses();
     const allCourses = await courseCollection.find({}).toArray();
-    res.render('../views/courseSelect', { title: 'Course', courses: allCourses });
+    res.render('../views/courseSelect', { title: 'Courses', courses: allCourses });
   } catch (error) {
-    return res.status(400).render("../views/courseSelect", {error: error, title: "course"});
+    return res.status(400).render("../views/courseSelect", {error: error, title: "Courses"});
   }
 }
 ).post(async (req, res) => {
@@ -271,20 +378,22 @@ router.route('/course').get(async (req, res) => {
         }
       }
     }
-    res.render('../views/course', { title: 'course', courseName: courseName, reviews: courseReviews, rating: checkCourse.averageRating, difficulty: checkCourse.averageDifficulty });
+    res.render('../views/course', { title: 'Courses', courseName: courseName, reviews: courseReviews, rating: checkCourse.averageRating, difficulty: checkCourse.averageDifficulty });
   } catch (error) {
     console.log(error);
-    return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
+    return res.status(400).render("../views/courseSelect", {error: error, title: "Courses"});
   }
 });
 
-router.route('/bestProfessors').get(async (req, res) => {
+router
+.route('/bestProfessors')
+.get(async (req, res) => {
   try {
     const courseCollection = await courses();
     const allCourses = await courseCollection.find({}).toArray();
     res.render('../views/filter', { title: 'Filter Professors', courses: allCourses });
   } catch (error) {
-    return res.status(400).render("../views/courseSelect", {error: error, title: "course"});
+    return res.status(400).render("../views/filter", {error: error, title: "Filter Professors"});
   }
 }
 ).post(async (req, res) => {
@@ -315,29 +424,34 @@ router.route('/bestProfessors').get(async (req, res) => {
       courseProfessors.sort((a, b) => a.averageDifficulty - b.averageDifficulty);
     }
 
-    res.render('../views/filtered', { title: 'filtered', courseName: courseName, professors: courseProfessors});
+    res.render('../views/filtered', { title: 'Filtered Professors', courseName: courseName, professors: courseProfessors});
   } catch (error) {
     console.log(error);
-    return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
+    return res.status(400).render("../views/filtered", {error: error, title: "Filtered Professors"});
   }
 });
 
-router.route('/logout').get(async (req, res) => {
+router
+.route('/logout')
+.get(async (req, res) => {
   req.session.destroy();
-  res.render('../views/login', {title: "login"});
+  res.render('../views/login', {title: "Login"});
 });
 
-router.get('/report-review/:id', async (req, res) => {
+router
+.get('/report-review/:id', async (req, res) => {
   const reviewId = req.params.id;
 
   try {
       res.render('../views/reportReview', { reviewId });
   } 
   catch (error) {
-      return res.status(500).render("../views/reportReview", {error: "Internal Server Error", title: "report review"});
+      return res.status(500).render("../views/reportReview", {error: "Internal Server Error", title: "Report Review"});
   }
 });
-router.post('/report-review/:id', async (req, res) => {
+
+router
+.post('/report-review/:id', async (req, res) => {
   const reviewId = req.params.id;
   const explanation = xss(req.body.explanation);
 
