@@ -369,6 +369,24 @@ router
     }
   });
 
+router
+  .route('/chat')
+  .get(async (req, res) => {
+    try {
+      res.render('../views/chat', { title: 'Chat' });
+    } catch (error) {
+      return res.status(400).render("../views/error", { error: error, title: "Error" });
+    }
+  })
+  .post(async (req, res) => {
+    try {
+      console.log('hello');
+      res.sendStatus(200);
+    } catch (error) {
+      return res.status(400).render("../views/error", { error: error, title: "Error" });
+    }
+  });
+
 
 router
 .route('/course')
