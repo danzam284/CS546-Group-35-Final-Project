@@ -17,22 +17,31 @@ document.addEventListener('DOMContentLoaded', function () {
         let validEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
 
         if (!validEmail.test(emailAddressInput)) { //check for all the valid email stuff above
-            throw new Error ("please enter a valid email address")
+            document.getElementById("error") = "Please enter a valid email address.";
+            return;
+        }
+
+        if (!emailAddressInput.endsWith('@stevens.edu')) {
+          document.getElementById("error").innerHTML = "Email must be a Stevens Email.";
+          return;
         }
 
         // password input validation
         let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
 
         if (!validPassword.test(passwordInput)) {
-            throw new Error('please enter valid password');
+          document.getElementById("error").innerHTML = "Please enter a valid password";
+          return;
         }
 
         if (!validPassword.test(confirmPasswordInput)) {
-            throw new Error('please enter valid password');
+          document.getElementById("error").innerHTML = "Please enter a valid password";
+          return;
         }
 
         if (passwordInput !== confirmPasswordInput) {
-            return new Error ('passwords must match');
+          document.getElementById("error").innerHTML = "Passwords must match";
+          return;
         }
 
         registerForm.submit();
@@ -53,20 +62,17 @@ document.addEventListener('DOMContentLoaded', function () {
         let validEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
 
         if (!validEmail.test(emailAddressInput)) { //check for all the valid email stuff above
-            throw new Error ("please enter a valid email address")
+            document.getElementById("error").innerHTML = "please enter a valid email address";
         }
 
         // password input validation
         let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
 
         if (!validPassword.test(passwordInput)) {
-            throw new Error('please enter valid password');
+          document.getElementById("error").innerHTML = "please enter a valid password";
         }
-
         loginForm.submit();
         
       });
     }
-  
-
 });

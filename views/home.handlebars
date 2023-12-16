@@ -1,8 +1,9 @@
-<h1>Home</h1>
+<header>
+    <h1>Home</h1>
+</header>
 
-<p>Welcome to the main part of the site, {{username}}. Your email is {{email}}.</p>
-
-<p>Choose from the below options:</p>
+<p>Welcome to the main part of RateMyStevens, {{username}}. Your email is {{email}}.</p>
+<p>This web application allows students to review courses and professors! Please choose from the below options:</p>
 
 <a href="/create">Make a review</a>
 <br>
@@ -19,3 +20,7 @@
 <a href="/bestProfessors">Find Best Professor</a>
 <br>
 <a href="/logout">Logout</a>
+<br>
+{{#if admin}}
+<a href="/admin">Admin</a>
+{{/if}}

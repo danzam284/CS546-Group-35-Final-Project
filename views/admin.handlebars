@@ -1,0 +1,11 @@
+<h1>All reviews sorted by number of reports</h1>
+<p id="error">{{error}}</p>
+
+{{#each reviews}}
+    <div class="review">
+        <h3>Number of reports: {{reports.length}}</h2>
+        <p>Description: {{reviewBody}}</p>
+    </div>
+{{/each}}
+
+<a href="/home">Back</a>

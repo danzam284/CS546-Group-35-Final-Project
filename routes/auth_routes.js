@@ -6,6 +6,7 @@ import { users, courses, professors } from '../config/mongoCollections.js';
 import { addCourse } from '../data/course.js';
 import { addProfessor } from '../data/professor.js';
 import { ObjectId } from 'mongodb';
+import xss from 'xss';
 
 const router = Router();
 
@@ -20,10 +21,10 @@ router
     res.render('../views/register', {title: "register"});
   })
   .post(async (req, res) => {
-    let emailAddress = req.body.emailAddressInput;
-    let username = req.body.usernameInput;
-    let password = req.body.passwordInput;
-    let confirmedPassword = req.body.confirmPasswordInput;
+    let emailAddress = xss(req.body.emailAddressInput);
+    let username = xss(req.body.usernameInput);
+    let password = xss(req.body.passwordInput);
+    let confirmedPassword = xss(req.body.confirmPasswordInput);
     try {
       emailAddress = emailAddress.trim(); helpers.validateEmail(emailAddress);
       username = username.trim(); helpers.validateUsername(username);
@@ -62,8 +63,8 @@ router
     res.render('../views/login', {title: "login"});
   })
   .post(async (req, res) => {
-    let emailAddress = req.body.emailAddressInput;
-    let password = req.body.passwordInput;
+    let emailAddress = xss(req.body.emailAddressInput);
+    let password = xss(req.body.passwordInput);
     try {
       emailAddress = emailAddress.trim(); helpers.validateEmail(emailAddress);
       password = password.trim(); helpers.validatePassword(password);
@@ -78,7 +79,7 @@ router
 .route('/home')
 .get(async (req, res) => {
   const user = req.session.user;
-  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress});
+  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress, admin: user.admin});
 });
 
 router
@@ -93,11 +94,11 @@ router
   .post(async (req, res) => {
     //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
     const user = req.session.user;
-    const courseName = req.body.courseNameInput;
-    const professorName = req.body.professorNameInput;
-    const rating = parseInt(req.body.ratingInput);
-    const difficulty = parseInt(req.body.difficultyInput);
-    const reviewText = req.body.reviewTextInput;
+    const courseName = xss(req.body.courseNameInput);
+    const professorName = xss(req.body.professorNameInput);
+    const rating = parseInt(xss(req.body.ratingInput));
+    const difficulty = parseInt(xss(req.body.difficultyInput));
+    const reviewText = xss(req.body.reviewTextInput);
     try {
       helpers.validateCourseName(courseName);
       helpers.validateName(professorName);
@@ -185,7 +186,7 @@ router
     res.render('../views/addCourse', {title: "add course"});
   })
   .post(async (req, res) => {
-    let courseName = req.body.courseNameInput;
+    let courseName = xss(req.body.courseNameInput);
     try {
       courseName = courseName.trim(); helpers.validateCourseName(courseName);
     } catch(e) {
@@ -210,8 +211,8 @@ router
     res.render('../views/addProfessor', {title: "add professor"});
   })
   .post(async (req, res) => {
-    let professorFirstName = req.body.professorFirstNameInput;
-    let professorLastName = req.body.professorLastNameInput;
+    let professorFirstName = xss(req.body.professorFirstNameInput);
+    let professorLastName = xss(req.body.professorLastNameInput);
     try {
       professorFirstName = professorFirstName.trim(); helpers.validateProfessorName(professorFirstName, "first");
       professorLastName = professorLastName.trim(); helpers.validateProfessorName(professorLastName, "last");
@@ -244,7 +245,7 @@ router
   })
   .post(async (req, res) => {
     try {
-      const professorName = req.body.professorNameInput.trim();
+      const professorName = xss(req.body.professorNameInput).trim();
       const professorCollection = await professors();
       const checkProfessor = await professorCollection.findOne({name: professorName});
       if (!checkProfessor) {
@@ -282,7 +283,7 @@ router
 }
 ).post(async (req, res) => {
   try {
-    const courseName = req.body.courseNameInput.trim();
+    const courseName = xss(req.body.courseNameInput).trim();
     const courseCollection = await courses();
     const checkCourse = await courseCollection.findOne({name: courseName});
     if (!checkCourse) {
@@ -318,8 +319,8 @@ router
 }
 ).post(async (req, res) => {
   try {
-    const courseName = req.body.courseNameInput.trim();
-    const filter = req.body.filterByInput.trim();
+    const courseName = xss(req.body.courseNameInput).trim();
+    const filter = xss(req.body.filterByInput).trim();
     if (filter !== "rat" && filter !== "dif") {
       throw Error("Invalid filter");
     }
@@ -368,7 +369,7 @@ router.get('/report-review/:id', async (req, res) => {
 });
 router.post('/report-review/:id', async (req, res) => {
   const reviewId = req.params.id;
-  const explanation = req.body.explanation;
+  const explanation = xss(req.body.explanation);
 
   try {
     const userCollection = await users();
@@ -376,10 +377,27 @@ router.post('/report-review/:id', async (req, res) => {
       { 'reviews._id': reviewId },
       { $set: { 'reviews.$.reported': true, 'reviews.$.explanation': explanation } }
     );
+    
 
-    return res.redirect(`/report-review/${reviewId}?successMessage=Review+reported+successfully`);
+    return res.redirect(`/home`);
   } catch (error) {
     return res.status(500).render("../views/reportReview", { error: "Internal Server Error", title: "report review" });
+  }
+});
+
+router.get('/admin', async (req, res) => {
+  try {
+    const userCollection = await users();
+    const allUsers = await userCollection.find({}).toArray();
+    const allReviews = [];
+    for (let i = 0; i < allUsers.length; i++) {
+      for (let j = 0; j < allUsers[i].reviews.length; j++) {
+        allReviews.push(allUsers[i].reviews[j]);
+      }
+    }
+    res.render('../views/admin', { title: 'Admin', reviews: allReviews });
+  } catch (error) {
+    return res.status(400).render("../views/home", {error: error, title: "home"});
   }
 });
 

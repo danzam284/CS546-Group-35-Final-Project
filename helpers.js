@@ -14,6 +14,9 @@ function validateEmail(str) {
     if (!validator.validate(str)) {
         throw Error("Invalid email.");
     }
+    if (!str.endsWith('@stevens.edu')) {
+        throw Error("Email must be a Stevens Email.");
+    }
 }
 
 const validCharacters = "abcdefghijklmnopqrstuvwxyz-'";
