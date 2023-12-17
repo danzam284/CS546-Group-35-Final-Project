@@ -1,5 +1,7 @@
 <h1>Delete Your Reviews</h1>
 
+<p id="error">{{error}}</p>
+
 {{#if reviews}}
   {{#each reviews}}
     <div class="review">
@@ -16,8 +18,6 @@
         </form>
     </div>
   {{/each}}
-{{else}}
-  <p>You have no reviews to delete</p>
 {{/if}}
 
 <a href="/home">Back</a>
