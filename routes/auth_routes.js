@@ -71,7 +71,7 @@ router
       req.session.user = await loginUser(emailAddress, password);
       res.redirect("/home");
     } catch(e) {
-      res.status(400).render("../views/login", {error: e, title: "login"});
+      res.status(400).render("../views/login", {error: e, title: "Login"});
     }
   });
 
@@ -89,7 +89,7 @@ router
     const professorCollection = await professors();
     const allCourses = await courseCollection.find({}).toArray();
     const allProfessors = await professorCollection.find({}).toArray();
-    res.render('../views/create', {title: "create review", courses: allCourses, professors: allProfessors});
+    res.render('../views/create', {title: "Create Review", courses: allCourses, professors: allProfessors});
   })
   .post(async (req, res) => {
     //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
@@ -116,6 +116,8 @@ router
       if (!checkCourse) throw "Course does not exist, please add it first before reviewing it.";
       const checkProfessor = await professorCollection.findOne({name: professorName});
       if (!checkProfessor) throw "Professor does not exist, please add them first before reviewing them.";
+      const checkReview = await userCollection.findOne({'reviews.courseId': checkCourse._id, 'reviews.professorId': checkProfessor._id});
+      if (checkReview) throw "You already made a review for this course and professor!";
 
       const newReviewId = new ObjectId();
       const newReview = {
@@ -196,7 +198,7 @@ router
   .route('/delete/:reviewId')
   .delete(async (req, res) => {
     try {
-      const reviewId = req.params.reviewId;
+      const reviewId = xss(req.params.reviewId);
       let userId = req.session.user._id;
 
       const userCollection = await users();
