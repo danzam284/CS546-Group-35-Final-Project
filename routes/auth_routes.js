@@ -167,7 +167,11 @@ router
 
       return res.redirect("/home");
     } catch(e) {
-      return res.status(400).render("../views/create", {error: e, title: "create review"});
+      const courseCollection = await courses();
+      const professorCollection = await professors();
+      const allCourses = await courseCollection.find({}).toArray();
+      const allProfessors = await professorCollection.find({}).toArray();
+      return res.status(400).render('../views/create', {title: "create review", courses: allCourses, professors: allProfessors, error: e});
     }
     
   });
