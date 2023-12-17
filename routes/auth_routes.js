@@ -401,13 +401,15 @@ router
     .route('/chat/:courseName')
     .get((req, res) => {
       const courseName = req.params.courseName;
+      const revisedCourseName = courseName.replace(" ", "_");
       if (!courseMessages[courseName]) {
         courseMessages[courseName] = [];
       }
-      res.render('chat', { title: 'Chat Window', course: courseName, messages: courseMessages[courseName] });
+      res.render('chat', { title: 'Chat Window', course: revisedCourseName, messages: courseMessages[courseName] });
     })
     .post((req, res) => {
-      const courseName = req.params.courseName;
+      const revisedCourseName = req.params.courseName;
+      const courseName = revisedCourseName.replace("_", " ");
       if (!courseMessages[courseName]) {
         courseMessages[courseName] = [];
       }
