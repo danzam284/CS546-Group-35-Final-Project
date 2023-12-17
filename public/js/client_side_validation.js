@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
 
         if (!validPassword.test(passwordInput)) {
-          document.getElementById("error").innerHTML = "Please enter a valid Stevens Email Address. (Must contain @stevens.edu)";
+          document.getElementById("error").innerHTML = "Please enter a valid password";
         }
         loginForm.submit();
         
