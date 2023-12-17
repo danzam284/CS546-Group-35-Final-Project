@@ -12,8 +12,6 @@ const router = Router();
 
 let courseMessages = {};
 
-
-
 router.route('/').get(async (req, res) => {
   //code here for GET THIS ROUTE SHOULD NEVER FIRE BECAUSE OF MIDDLEWARE #1 IN SPECS.
   return res.json({error: 'YOU SHOULD NOT BE HERE!'});
@@ -89,7 +87,7 @@ router
 router
 .route('/home/:message')
 .get(async (req, res) => {
-  const message = req.params.message;
+  const message = xss(req.params.message);
   const user = req.session.user;
   res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress, admin: user.admin, message: message});
 });
@@ -370,7 +368,7 @@ router
       const allProfessors = await professorCollection.find({}).toArray();
       res.render('../views/professorSelect', { title: 'Professor', professors: allProfessors });
     } catch (error) {
-      return res.status(400).render("../views/professorSelect", {error: error, title: "professor"});
+      return res.status(400).render("../views/professorSelect", {error: error, title: "Professor"});
     }
   })
   .post(async (req, res) => {
@@ -391,7 +389,7 @@ router
           }
         }
       }
-      res.render('../views/prof', { title: 'prof', professorName: professorName, reviews: professorReviews, rating: checkProfessor.averageRating, difficulty: checkProfessor.averageDifficulty });
+      res.render('../views/prof', { title: 'Professor', professorName: professorName, reviews: professorReviews, rating: checkProfessor.averageRating, difficulty: checkProfessor.averageDifficulty });
     } catch (error) {
       return res.status(400).render("../views/professorSelect", {error: error, title: "prof"});
     }
@@ -400,7 +398,7 @@ router
   router
     .route('/chat/:courseName')
     .get((req, res) => {
-      const courseName = req.params.courseName;
+      const courseName = xss(req.params.courseName);
       const revisedCourseName = courseName.replace(" ", "_");
       if (!courseMessages[courseName]) {
         courseMessages[courseName] = [];
@@ -408,14 +406,14 @@ router
       res.render('chat', { title: 'Chat Window', course: revisedCourseName, messages: courseMessages[courseName] });
     })
     .post((req, res) => {
-      const revisedCourseName = req.params.courseName;
+      const revisedCourseName = xss(req.params.courseName);
       const courseName = revisedCourseName.replace("_", " ");
       if (!courseMessages[courseName]) {
         courseMessages[courseName] = [];
       }
       const message = {
-        user: req.session.user.username,
-        text: req.body.message,
+        user: xss(req.session.user.username),
+        text: xss(req.body.message),
         timestamp: new Date().toISOString()
       };
       courseMessages[courseName].push(message);
@@ -537,7 +535,7 @@ router
 
 router
 .get('/report-review/:id', async (req, res) => {
-  const reviewId = req.params.id;
+  const reviewId = xss(req.params.id);
 
   try {
       res.render('../views/reportReview', { reviewId, title: "Report Review" });
@@ -549,7 +547,7 @@ router
 
 router
 .post('/report-review/:id', async (req, res) => {
-  const reviewId = req.params.id;
+  const reviewId = xss(req.params.id);
   const explanation = xss(req.body.explanation);
 
   try {
@@ -603,7 +601,7 @@ router.get('/admin', async (req, res) => {
 });
 
 router.get('/checkProfessor/:professor', async (req, res) => {
-  const professorName = req.params.professor.trim();
+  const professorName = xss(req.params.professor.trim());
   const split = professorName.split(" ");
   const professorCollection = await professors();
   try {

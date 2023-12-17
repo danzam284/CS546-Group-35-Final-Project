@@ -4,7 +4,7 @@
     <div id="chat-container">
         <div id="chat-messages">
             {{#each messages}}
-            <p><strong>'{{this.user}}':</strong> {{this.text}} <em>({{this.timestamp}})</em></p>
+            <p><span class="chat-username">'{{this.user}}':</span> {{this.text}} - ({{this.timestamp}})</p>
             {{/each}}
         </div>
         <form id="chat-input" action="/chat/{{course}}" method="POST">
