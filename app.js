@@ -98,6 +98,61 @@ app.use('/delete', (req, res, next) => {
     }
 });
 
+app.use('/prof', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
+app.use('/chat', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
+app.use('/course', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
+app.use('/bestProfessors', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
+app.use('/logout', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
+app.use('/admin', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        if (req.session.user.admin == true){
+            next();
+        } else{
+            //error code taken from lecture code, commented out to simply just redirect to home page
+            //return res.status(403).json({error: '403: Forbidden'})
+            return res.redirect("/home");
+        }
+        ;
+    }
+});
+
 app.use('/delete/:reviewId' , (req, res, next) => {
   if (!req.session.user) {
       return res.redirect("/login");
