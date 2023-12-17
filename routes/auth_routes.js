@@ -538,7 +538,7 @@ router
   const reviewId = req.params.id;
 
   try {
-      res.render('../views/reportReview', { reviewId });
+      res.render('../views/reportReview', { reviewId, title: "Report Review" });
   } 
   catch (error) {
       return res.status(500).render("../views/reportReview", {error: "Internal Server Error", title: "Report Review"});
