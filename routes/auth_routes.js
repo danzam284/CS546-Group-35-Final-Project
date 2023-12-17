@@ -76,10 +76,18 @@ router
   });
 
 router
-.route('/home')
+.route('/home/')
 .get(async (req, res) => {
   const user = req.session.user;
   res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress, admin: user.admin});
+});
+
+router
+.route('/home/:message')
+.get(async (req, res) => {
+  const message = req.params.message;
+  const user = req.session.user;
+  res.render('../views/home', {title: "home", username: user.username, email: user.emailAddress, admin: user.admin, message: message});
 });
 
 router
@@ -119,8 +127,14 @@ router
       if (!checkCourse) throw "Course does not exist, please add it first before reviewing it.";
       const checkProfessor = await professorCollection.findOne({name: professorName});
       if (!checkProfessor) throw "Professor does not exist, please add them first before reviewing them.";
-      const checkReview = await userCollection.findOne({'reviews.courseId': checkCourse._id, 'reviews.professorId': checkProfessor._id});
-      if (checkReview) throw "You already made a review for this course and professor!";
+
+      const currentUser = await userCollection.findOne({_id: new ObjectId(user._id)});
+      for (let i = 0; i < currentUser.reviews.length; i++) {
+        const rev = currentUser.reviews[i];
+        if (rev.professorName === professorName && rev.courseName === courseName) {
+          throw "You already made a review for this course and professor!";
+        }
+      }
 
       const newReviewId = new ObjectId();
       const newReview = {
@@ -170,7 +184,7 @@ router
       }
       console.log("Review successfully added to user, course, and professor.")
 
-      return res.redirect("/home");
+      return res.redirect("/home/Review successfully added!");
     } catch(error) {
       console.log(error);
       const courseCollection = await courses();
@@ -285,7 +299,7 @@ router
       }
       console.log('Successfully deleted review!!');
 
-      return res.redirect("/home");
+      return res.redirect("/home/Successfully deleted review!");
     } catch(e) {
       console.log(e);
       return res.status(400).render("../views/delete", {error: e, title: "Delete Review"});
@@ -308,7 +322,7 @@ router
     try {
       const add = await addCourse(courseName);
       if (add.insertedCourse) {
-        return res.redirect("/home");
+        return res.redirect("/home/Successfully added course!");
       } else {
         return res.status(500).render("../views/addCourse", {error: "Internal Server Error", title: "Add course"});
       }
@@ -335,7 +349,7 @@ router
     try {
       const add = await addProfessor(professorFirstName, professorLastName);
       if (add.insertedCourse) {
-        return res.redirect("/home");
+        return res.redirect("/home/Successfully added professor!");
       } else {
         return res.status(500).render("../views/addProfessor", {error: "Internal Server Error", title: "Add professor"});
       }
@@ -529,7 +543,7 @@ router
       { $push: { 'reviews.$.reports': report} }
     );
 
-    return res.redirect(`/home`);
+    return res.redirect(`/home/Successfully reported post!`);
   } catch (error) {
     return res.status(400).render("../views/reportReview", { error: error, title: "report review" });
   }

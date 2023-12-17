@@ -58,6 +58,14 @@ app.use('/home', (req, res, next) => {
     }
 });
 
+app.use('/home/:message', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    } else {
+        next();
+    }
+});
+
 app.use('/create', (req, res, next) => {
     if (!req.session.user) {
         return res.redirect("/login");

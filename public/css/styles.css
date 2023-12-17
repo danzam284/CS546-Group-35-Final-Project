@@ -81,3 +81,13 @@ li {
     margin-bottom: 10px;
     margin-top: 10px;
 }
+
+#message {
+    background-color: darkgreen;
+    color: rgb(115, 250, 115);
+    text-align: center;
+}
+
+#message:not(:empty) {
+    padding: 10px;
+}

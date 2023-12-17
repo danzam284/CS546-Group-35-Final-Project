@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (isNaN(parseInt(ratingInput)) || parseInt(ratingInput) < 1 || parseInt(ratingInput) > 5) {
-          document.getElementById("error").innerHTML = "Please enter a valid review.";
+          document.getElementById("error").innerHTML = "Please enter a valid rating.";
           return;
         } 
 
