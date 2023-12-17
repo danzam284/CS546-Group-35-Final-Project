@@ -60,7 +60,7 @@ router
 router
   .route('/login')
   .get(async (req, res) => {
-    res.render('../views/login', {title: "login"});
+    res.render('../views/login', {title: "Login"});
   })
   .post(async (req, res) => {
     let emailAddress = xss(req.body.emailAddressInput);
@@ -92,20 +92,23 @@ router
     res.render('../views/create', {title: "Create Review", courses: allCourses, professors: allProfessors});
   })
   .post(async (req, res) => {
-    //TODO (validate inputs (make sure professor/course exist, ensure numbers are valid, etc), add new review as subdocument to user, add new review ID to both course and professor, and adjust their mean rating/difficulties)
     const user = req.session.user;
-    const courseName = xss(req.body.courseNameInput);
-    const professorName = xss(req.body.professorNameInput);
+    let courseName = xss(req.body.courseNameInput);
+    let professorName = xss(req.body.professorNameInput);
     const rating = parseInt(xss(req.body.ratingInput));
     const difficulty = parseInt(xss(req.body.difficultyInput));
-    const reviewText = xss(req.body.reviewTextInput);
+    let reviewText = xss(req.body.reviewTextInput);
+    courseName = courseName.trim();
+    professorName = professorName.trim();
+    reviewText = reviewText.trim();
     try {
       helpers.validateCourseName(courseName);
       helpers.validateName(professorName);
+
       if (rating < 1 || rating > 5) throw "Invalid rating";
       if (difficulty < 1 || difficulty > 5) throw "Invalid difficulty";
 
-      if (!reviewText || typeof reviewText !== 'string') throw 'Review text cannot be empty';
+      if (typeof reviewText !== 'string') throw 'Review text cannot be empty';
       if (reviewText.trim().length === 0) throw 'Review text cannot be filled with just spaces';
 
       const userCollection = await users();
@@ -168,12 +171,13 @@ router
       console.log("Review successfully added to user, course, and professor.")
 
       return res.redirect("/home");
-    } catch(e) {
+    } catch(error) {
+      console.log(error);
       const courseCollection = await courses();
       const professorCollection = await professors();
       const allCourses = await courseCollection.find({}).toArray();
       const allProfessors = await professorCollection.find({}).toArray();
-      return res.status(400).render('../views/create', {title: "create review", courses: allCourses, professors: allProfessors, error: e});
+      return res.status(400).render('../views/create', {title: "Create Review", courses: allCourses, professors: allProfessors, error: error});
     }
     
   });
