@@ -6,9 +6,8 @@
         <h3>Number of reports: {{reports.length}}</h2>
         <p>Description: {{reviewBody}}</p>
         <form action="/delete/{{_id}}" method="POST">
-            <Label for="delete-button" hidden></Label>
             <input name="switch" value="delete" hidden>
-            <input id="delete-button" type="submit" value="Delete">
+            <input name="delete-button" type="submit" value="Delete">
         </form>
     </div>
 {{/each}}
