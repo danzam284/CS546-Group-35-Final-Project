@@ -10,6 +10,10 @@ import xss from 'xss';
 
 const router = Router();
 
+let courseMessages = {};
+
+
+
 router.route('/').get(async (req, res) => {
   //code here for GET THIS ROUTE SHOULD NEVER FIRE BECAUSE OF MIDDLEWARE #1 IN SPECS.
   return res.json({error: 'YOU SHOULD NOT BE HERE!'});
@@ -393,23 +397,53 @@ router
     }
   });
 
+  router
+    .route('/chat/:courseName')
+    .get((req, res) => {
+      const courseName = req.params.courseName;
+      if (!courseMessages[courseName]) {
+        courseMessages[courseName] = [];
+      }
+      res.render('chat', { course: courseName, messages: courseMessages[courseName] });
+    })
+    .post((req, res) => {
+      const courseName = req.params.courseName;
+      if (!courseMessages[courseName]) {
+        courseMessages[courseName] = [];
+      }
+      const message = {
+        user: 'Anonymous',
+        text: req.body.message,
+        timestamp: new Date().toISOString()
+      };
+      courseMessages[courseName].push(message);
+      res.redirect('/chat/' + courseName);
+    });
+
 router
-  .route('/chat')
-  .get(async (req, res) => {
-    try {
-      res.render('../views/chat', { title: 'Chat' });
-    } catch (error) {
-      return res.status(400).render("../views/error", { error: error, title: "Error" });
+.route('/chatSelect')
+.get(async (req, res) => {
+  try {
+    const courseCollection = await courses();
+    const allCourses = await courseCollection.find({}).toArray();
+    res.render('../views/chatSelect', { title: 'Chat', courses: allCourses });
+  } catch (error) {
+    return res.status(400).render("../views/chatSelect", {error: error, title: "Chat"});
+  }
+}
+).post(async (req, res) => {
+  try {
+    const courseName = xss(req.body.courseNameInput).trim();
+    const courseCollection = await courses();
+    const checkCourse = await courseCollection.findOne({name: courseName});
+    if (!checkCourse) {
+      throw "Course not found.";
     }
-  })
-  .post(async (req, res) => {
-    try {
-      console.log('hello');
-      res.sendStatus(200);
-    } catch (error) {
-      return res.status(400).render("../views/error", { error: error, title: "Error" });
-    }
-  });
+    res.redirect('/chat/' + courseName);
+  } catch (error) {
+    return res.status(400).render("../views/chatSelect", {error: error, title: "Chat"});
+  }
+});
 
 
 router
