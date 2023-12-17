@@ -412,7 +412,7 @@ router
         courseMessages[courseName] = [];
       }
       const message = {
-        user: 'Anonymous',
+        user: req.session.user.username,
         text: req.body.message,
         timestamp: new Date().toISOString()
       };
