@@ -404,7 +404,7 @@ router
       if (!courseMessages[courseName]) {
         courseMessages[courseName] = [];
       }
-      res.render('chat', { course: courseName, messages: courseMessages[courseName] });
+      res.render('chat', { title: 'Chat Window', course: courseName, messages: courseMessages[courseName] });
     })
     .post((req, res) => {
       const courseName = req.params.courseName;
