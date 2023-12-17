@@ -1,8 +1,8 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+    background-color: #F5F5DC;
 }
-
 
 .input-container {
     display: block;
@@ -64,6 +64,19 @@ p:last-child {
 a {
     color: #9b59b6;
     text-decoration: none;
+    margin: 10px 0;
+}
+
+a:hover {
+  opacity: 0.7;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:active {
+  opacity: 1;
+  cursor: default;
 }
 
 li {
@@ -71,15 +84,37 @@ li {
 }
 
 .review {
-    border: 1px solid black;
+    border: 2px solid black;
+    border-radius: 32px;
     width: 500px;
     text-align: center;
     margin-bottom: 10px;
     margin-top: 10px;
+    background-color: lightgrey;
 }
 
-.review:hover {
-    background-color: grey;
+.review p {
+  color: black;
+}
+
+.review input {
+  color: black;
+  font-weight: bold;
+  width: 90px;
+  height: 25px;
+  border-style: solid;
+  border-color: black;
+  border-radius: 30px;
+}
+
+.review input:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.review input:active {
+  opacity: 1;
+  cursor: default;
 }
 
 .professor {
@@ -98,4 +133,48 @@ li {
 
 #message:not(:empty) {
     padding: 10px;
+}
+
+#error {
+  color: red;
+  text-align: center;
+}
+
+#reviewTextInput {
+  resize:none;
+  width: 300px;
+  padding: 5px;
+  height: 150px;
+  color: black;
+  font-size: 1.2em;
+}
+
+#create-form-submit {
+  color: black;
+  font-weight: bold;
+  width: 90px;
+  height: 25px;
+  border-style: solid;
+  border-color: black;
+  border-radius: 30px;
+}
+
+#create-form-submit:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+#create-form-submit:active {
+  opacity: 1;
+  cursor: default;
+}
+
+#chat-container p {
+  color: rgb(79, 76, 76);
+  text-decoration: none;
+}
+
+.chat-username {
+  font-weight: bold;
+  color: black;
 }
