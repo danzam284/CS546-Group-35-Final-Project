@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (data.error) {
             error.html(data.error);
           } else if (data.name) {
-            response.html("Yes, " + firstName + " " + lastName + " is in our database! So far " + data.reviewIds.length + " people have rated them and they have an average rating of " + data.averageRating + ".");
+            response.html("Yes, " + firstName + " " + lastName + " is in our database! So far " + data.reviewIds.length + " person(s) have rated them and they have an average rating of " + data.averageRating + ".");
           } else {
             response.html("No, " + firstName + " " + lastName + " is not in our database. Feel free to go to 'Add Professor' to add them!");
           }
