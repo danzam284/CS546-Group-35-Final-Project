@@ -318,7 +318,7 @@ const seedUsers = [
         "professorName": "Shudong Hao",
         "courseId": new ObjectId("657e208091bfdd4fa346e494"),
         "courseName": "CS 382",
-        "reviewBody": "He is highly unprofessional. Reading the textbook is a MUST, but it probably won't help you very much on the tests. The homework and the labs do not really relate to what we are learning in class, and honestly some of the assembly ones just feel like busy work. Do not recommend.\r\n",
+        "reviewBody": "He is highly unprofessional. Reading the textbook is a MUST, but it probably wont help you very much on the tests. The homework and the labs do not really relate to what we are learning in class, and honestly some of the assembly ones just feel like busy work. Do not recommend.\r\n",
         "rating": 1,
         "difficulty": 4,
         "date": "Sat Dec 16 2023",
@@ -384,27 +384,6 @@ const seedUsers = [
         "date": "Sat Dec 16 2023",
         "reports": []
     }
-    ]
-},
-{
-  "_id": new ObjectId("657e5666f7d01cb62a2d71ce"),
-    "emailAddress": "jvera2@stevens.edu",
-    "username": "jvera2",
-    "password": "$2b$10$knjxR4t07hUcf/iRrGKSA.0zw93loPqvoqsxk48yEUB4W/I.jyHFS",
-    "admin": false,
-    "reviews": [
-      {
-        "_id": new ObjectId("657e57faf7d01cb62a2d71d1"),
-        "professorId": new ObjectId("657e57caf7d01cb62a2d71cf"),
-        "professorName": "Patrick Hill",
-        "courseId": new ObjectId("657e57e1f7d01cb62a2d71d0"),
-        "courseName": "CS 546",
-        "reviewBody": "Fun class, cool professor, class challenged me to be better",
-        "rating": 4,
-        "difficulty": 5,
-        "date": "Sat Dec 16 2023",
-        "reports": []
-      }
     ]
 }];
 
