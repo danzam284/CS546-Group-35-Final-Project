@@ -579,7 +579,7 @@ router
 
     return res.redirect(`/home/Successfully reported post!`);
   } catch (error) {
-    return res.status(400).render("../views/reportReview", { error: error, title: "report review" });
+    return res.status(400).render("../views/reportReview", { error: error, title: "Report Review" });
   }
 });
 
@@ -596,7 +596,7 @@ router.get('/admin', async (req, res) => {
     allReviews.sort((a, b) => b.reports.length - a.reports.length);
     res.render('../views/admin', { title: 'Admin', reviews: allReviews });
   } catch (error) {
-    return res.status(400).render("../views/home", {error: error, title: "home"});
+    return res.status(400).render("../views/home", {error: error, title: "Home"});
   }
 });
 

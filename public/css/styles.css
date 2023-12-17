@@ -123,6 +123,9 @@ li {
     text-align: center;
     margin-bottom: 10px;
     margin-top: 10px;
+    background-color: lightgrey;
+    border: 2px solid black;
+    border-radius: 32px;
 }
 
 #message {

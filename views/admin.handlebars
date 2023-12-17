@@ -3,7 +3,7 @@
 
 {{#each reviews}}
     <div class="review">
-        <h3>Number of reports: {{reports.length}}</h2>
+        <h3>Number of reports: {{reports.length}}</h3>
         <p>Description: {{reviewBody}}</p>
         <form action="/delete/{{_id}}" method="POST">
             <input name="switch" value="delete" hidden>
