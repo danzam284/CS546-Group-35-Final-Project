@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+    <title>Chat for {{course}}</title>
+</head>
+
 <body>
-    <h1>Live Chat</h1>
+    <h1>Chat for {{course}}</h1>
 
     <div id="chat-container">
         <div id="chat-messages">
+            {{#each messages}}
+            <p><strong>'{{this.user}}':</strong> {{this.text}} <em>({{this.timestamp}})</em></p>
+            {{/each}}
         </div>
-        <div id="chat-input">
-            <input type="text" id="message-input" placeholder="Type your message...">
-            <button id="send-button">Send</button>
-        </div>
+        <form id="chat-input" action="/chat/{{course}}" method="POST">
+            <input type="text" name="message" id="message-input" placeholder="Type your message..." required>
+            <button type="submit" id="send-button">Send</button>
+        </form>
     </div>
 
 </body>
+
 </html>
