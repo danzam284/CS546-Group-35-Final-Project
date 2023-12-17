@@ -385,27 +385,6 @@ const seedUsers = [
         "reports": []
     }
     ]
-},
-{
-  "_id": new ObjectId("657e5666f7d01cb62a2d71ce"),
-    "emailAddress": "jvera2@stevens.edu",
-    "username": "jvera2",
-    "password": "$2b$10$knjxR4t07hUcf/iRrGKSA.0zw93loPqvoqsxk48yEUB4W/I.jyHFS",
-    "admin": false,
-    "reviews": [
-      {
-        "_id": new ObjectId("657e57faf7d01cb62a2d71d1"),
-        "professorId": new ObjectId("657e57caf7d01cb62a2d71cf"),
-        "professorName": "Patrick Hill",
-        "courseId": new ObjectId("657e57e1f7d01cb62a2d71d0"),
-        "courseName": "CS 546",
-        "reviewBody": "Fun class, cool professor, class challenged me to be better",
-        "rating": 4,
-        "difficulty": 5,
-        "date": "Sat Dec 16 2023",
-        "reports": []
-      }
-    ]
 }];
 
 const seedCourses = [{
