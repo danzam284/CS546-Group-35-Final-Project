@@ -41,3 +41,29 @@ For this project, we plan to implement a web application that allows users (Stev
 ## **GitHub**
 
 [https://github.com/danzam284/CS546-Group-35-Final-Project](https://github.com/danzam284/CS546-Group-35-Final-Project)
+
+## How to run
+- Our repository link is: https://github.com/danzam284/CS546-Group-35-Final-Project
+- Clone or download the repository code
+- To seed the database, run 'npm run seed'
+- To install dependencies, run 'npm i'
+- To start, run 'npm start'
+- Finally, open localhost:3000
+
+## Accounts
+- We have supplied 3 accounts in the seed.
+- Feel free to use these accounts or create your own.
+    - email: dzamloot@stevens.edu, password: Password123!
+    - email: jbonetti@stevens.edu, password: Password123!
+    - email: admin@stevens.edu, password: Password123!
+- Note: in order to test the admin functionality, you must sign into the admin account.
+
+## Our extra features
+- We implemented the Discussion area which can be found in the 'chat with classmates' link
+- We implemented the filter professor by rating which can be found in the 'find best professor' link
+- We implemented the Stevens student verification which can be seen when attempting to create a non-Stevens account
+
+## Other notes
+- For core feature 2, we spoke to professor and he said it was ok if we do not make it anonymous and just function as a log in page
+- For core feature 11, we also spoke to professor and he said it was ok to just have Admins able to delete posts
+- Thank you!
