@@ -5,8 +5,12 @@
 {{#each professors}}
     <div class="professor">
         <h3>{{name}}</h3>
+        {{#if averageRating}}
         <p>Rating: {{averageRating}}</p>
         <p>Difficulty: {{averageDifficulty}}</p>
+        {{else}}
+        <p>This professor no longer has any reviews.</p>
+        {{/if}}
     </div>
 {{/each}}
 

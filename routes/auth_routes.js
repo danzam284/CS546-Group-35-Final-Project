@@ -288,17 +288,21 @@ router
       const newReviewArray = getUpdatedUser.reviews;
       const check = newReviewArray.filter((review) => review.courseId.equals(new ObjectId(courseId)) && review.professorId.equals(new ObjectId(professorId)));
       let updatedCourse, updatedProfessor;
-      if (check.length !== 0) {
-        updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
-        if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
-        updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
-        if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
-      } else {
-        updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {professorIds: professorId, reviewIds: new ObjectId(reviewId)}});
-        if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
-        updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {courseIds: courseId, reviewIds: new ObjectId(reviewId)}});
-        if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
-      }
+      updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
+      if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
+      updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
+      if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
+      //if (check.length !== 0) {
+      //  updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
+      //  if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
+      //  updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {reviewIds: new ObjectId(reviewId)}});
+      //  if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
+      //} else {
+      //  updatedCourse = await courseCollection.updateOne({_id: courseId}, {$set: {averageRating: newCourseAvgRating, averageDifficulty: newCourseAvgDiff}, $pull: {professorIds: professorId, reviewIds: new ObjectId(reviewId)}});
+      //  if (updatedCourse.modifiedCount === 0) throw "Internal Server Error";
+      //  updatedProfessor = await professorCollection.updateOne({_id: professorId}, {$set: {averageRating: newProfessorAvgRating, averageDifficulty: newProfessorAvgDiff}, $pull: {courseIds: courseId, reviewIds: new ObjectId(reviewId)}});
+      //  if (updatedProfessor.modifiedCount === 0) throw "Internal Server Error";
+      //}
       console.log('Successfully deleted review!!');
 
       return res.redirect("/home/Successfully deleted review!");
@@ -506,9 +510,9 @@ router
     }
     const professorCollection = await professors();
     const courseProfessors = [];
-    
     for (let i = 0; i < checkCourse.professorIds.length; i++) {
       const professor = await professorCollection.findOne({_id: checkCourse.professorIds[i]});
+      console.log(professor);
       if (professor) {
         courseProfessors.push(professor);
       }
